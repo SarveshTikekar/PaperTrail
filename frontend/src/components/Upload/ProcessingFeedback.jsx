@@ -27,7 +27,7 @@ export default function ProcessingFeedback({ isProcessing, onComplete }) {
           clearInterval(interval);
           setTimeout(() => {
             if (onComplete) onComplete();
-            navigate('/verify'); // Auto navigate to verify when done for demo
+            // Removed auto-navigation for now
           }, 1000);
           return prev;
         }
