@@ -1,8 +1,6 @@
 import cv2
 import numpy as np
-import os
-from io import BytesIO
-
+from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -27,6 +25,8 @@ class OCRAPIView(APIView):
         try:
             # Import pytesseract only when needed to avoid startup issues
             import pytesseract
+            if settings.TESSERACT_CMD:
+                pytesseract.pytesseract.tesseract_cmd = settings.TESSERACT_CMD
 
             # Tesseract path for Windows (default installation location)
             # pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
@@ -77,8 +77,12 @@ class OCRAPIView(APIView):
             return Response({'text': extracted_text.strip()}, status=status.HTTP_200_OK)
 
         except ImportError:
-            # pytesseract not available
-            return Response({'text': 'Sample OCR Result: This is extracted text from the uploaded file. pytesseract module not available.', 'note': 'pytesseract import failed - using mock response'}, status=status.HTTP_200_OK)
+            return Response(
+                {'error': 'pytesseract is not installed in the backend environment.'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
         except Exception as e:
-            # Any other error (including TesseractNotFoundError)
-            return Response({'text': 'Sample OCR Result: This is extracted text from the uploaded file. OCR processing encountered an error.', 'note': f'OCR processing failed: {str(e)} - using mock response'}, status=status.HTTP_200_OK)
+            return Response(
+                {'error': f'OCR processing failed: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )

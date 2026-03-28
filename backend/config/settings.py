@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import tempfile
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,7 +26,7 @@ SECRET_KEY = 'django-insecure-xxz11lmqv6leq2xsu1375^vez)y1-#)4oz@))j=*cj@0a^p5r=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'testserver']
 
 
 # Application definition
@@ -80,7 +81,10 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        # The repo directory is read-only for deletions, which SQLite needs for
+        # journal files. Point the database to a temp folder we can freely
+        # read/write/delete in.
+        'NAME': Path(tempfile.gettempdir()) / 'colohacks_db.sqlite3',
     }
 }
 
@@ -140,3 +144,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+DEFAULT_TESSERACT_PATH = Path(r'C:\Program Files\Tesseract-OCR\tesseract.exe')
+TESSERACT_CMD = str(DEFAULT_TESSERACT_PATH) if DEFAULT_TESSERACT_PATH.exists() else None

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useLanguage } from '../context/LanguageContext';
 import { Upload, FileText, ChevronRight, Loader2, CheckCircle, AlertCircle, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { saveRecord } from '../utils/records';
 import './UploadPage.css';
 
 const FORM_TYPES = [
@@ -12,6 +14,7 @@ const FORM_TYPES = [
 const STEPS = ['Select Form', 'Upload Image', 'Processing', 'Results'];
 
 export default function UploadPage() {
+  const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [formType, setFormType] = useState('pan_49a');
   const [result, setResult] = useState(null);
@@ -43,7 +46,8 @@ export default function UploadPage() {
       const response = await axios.post('http://127.0.0.1:8000/api/lab/upload/', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      setResult(response.data);
+      const storedRecord = saveRecord(response.data);
+      setResult(storedRecord);
     } catch (err) {
       setError(err?.response?.data?.error || err?.response?.data?.detail || err.message || 'OCR processing failed');
     } finally {
@@ -129,6 +133,13 @@ export default function UploadPage() {
               </div>
               <div className="result-body">
                 <pre className="result-json">{JSON.stringify(result, null, 2)}</pre>
+                <button
+                  onClick={() => navigate(`/verify?id=${encodeURIComponent(result.id)}`)}
+                  className="btn-primary"
+                  style={{ marginTop: '14px', width: '100%', justifyContent: 'center' }}
+                >
+                  Review Extracted Data
+                </button>
               </div>
             </div>
           ) : (

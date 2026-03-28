@@ -2,44 +2,51 @@ import React from 'react';
 import { FileText, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import StatusBadge from './StatusBadge';
+import { readRecords } from '../../utils/records';
 import './FormList.css';
-
-const mockData = [
-  { id: 'REC-1042', filename: 'bank_statement_march.png', date: '2023-10-24 14:32', status: 'pending' },
-  { id: 'REC-1041', filename: 'driving_license_front.jpg', date: '2023-10-24 09:15', status: 'verified' },
-  { id: 'REC-1040', filename: 'invoice_apple_store.pdf', date: '2023-10-23 18:45', status: 'verified' },
-  { id: 'REC-1039', filename: 'w9_form_contractor.png', date: '2023-10-23 11:20', status: 'processing' },
-];
 
 export default function FormList() {
   const navigate = useNavigate();
+  const records = readRecords();
+
+  if (!records.length) {
+    return (
+      <div className="form-list-wrapper glass-panel">
+        <div className="form-list-header">
+          <h3>Recent Uploads</h3>
+          <span className="text-muted">Your uploaded forms will appear here.</span>
+        </div>
+        <div style={{ padding: '28px', color: 'var(--text-secondary)' }}>
+          No uploaded records yet. Start from the upload page to create a verification record.
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="form-list-wrapper glass-panel">
       <div className="form-list-header">
         <h3>Recent Uploads</h3>
-        <span className="text-muted">Manage and verify your documents</span>
+        <span className="text-muted">Manage and verify your extracted forms</span>
       </div>
-      
+
       <div className="table-responsive">
         <table className="form-table">
           <thead>
             <tr>
               <th>Document ID</th>
-              <th>File Info</th>
-              <th>Upload Date</th>
+              <th>Form Type</th>
+              <th>Created</th>
               <th>Status</th>
               <th className="text-right">Action</th>
             </tr>
           </thead>
           <tbody>
-            {mockData.map((row) => (
-              <tr 
-                key={row.id} 
+            {records.map((row) => (
+              <tr
+                key={row.id}
                 className="table-row"
-                onClick={() => {
-                  if (row.status !== 'processing') navigate('/verify');
-                }}
+                onClick={() => navigate(`/verify?id=${encodeURIComponent(row.id)}`)}
               >
                 <td>
                   <span className="doc-id">{row.id}</span>
@@ -49,20 +56,18 @@ export default function FormList() {
                     <div className="file-icon-bg">
                       <FileText size={16} className="file-icon" />
                     </div>
-                    <span className="filename">{row.filename}</span>
+                    <span className="filename">{row.form_type}</span>
                   </div>
                 </td>
-                <td className="text-muted">{row.date}</td>
+                <td className="text-muted">
+                  {row.created_at ? new Date(row.created_at).toLocaleString('en-IN') : '-'}
+                </td>
                 <td>
                   <StatusBadge status={row.status} />
                 </td>
                 <td className="text-right">
-                  <button 
-                    className="action-btn"
-                    disabled={row.status === 'processing'}
-                    title={row.status === 'processing' ? 'Processing...' : 'Review Document'}
-                  >
-                    {row.status === 'verified' ? 'View' : 'Review'} <ChevronRight size={16} />
+                  <button className="action-btn" title="Review Document">
+                    Review <ChevronRight size={16} />
                   </button>
                 </td>
               </tr>

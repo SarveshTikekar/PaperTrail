@@ -16,6 +16,9 @@ class BaseForm(models.Model):
         abstract = True
 
 class PANForm49A(BaseForm):
+    # 0. Title
+    title = models.CharField(max_length=10, blank=True)
+
     # 1. Full Name
     full_name_last = models.CharField(max_length=100, blank=True)
     full_name_first = models.CharField(max_length=100, blank=True)
@@ -45,6 +48,7 @@ class PANForm49A(BaseForm):
     mother_last = models.CharField(max_length=100, blank=True)
     mother_first = models.CharField(max_length=100, blank=True)
     mother_middle = models.CharField(max_length=100, blank=True)
+    single_parent_mother_only = models.BooleanField(default=False)
     
     parent_to_print = models.CharField(max_length=20, blank=True) # Father's Name / Mother's Name
     
@@ -72,14 +76,20 @@ class PANForm49A(BaseForm):
     # 8. Address for Communication
     comm_address = models.CharField(max_length=20, blank=True) # Residence / Office
     
-    # 9. Phone & Email
+    # 9. Phone & Email (ISD + STD + Number)
     phone_country_code = models.CharField(max_length=5, blank=True)
-    phone_area_code = models.CharField(max_length=10, blank=True)
+    phone_std_code = models.CharField(max_length=10, blank=True)
     phone_number = models.CharField(max_length=20, blank=True)
     email_id = models.EmailField(blank=True, null=True)
     
     # 10. Status of Applicant
     applicant_status = models.CharField(max_length=100, blank=True)
+
+    # 11. AO code
+    ao_code_area = models.CharField(max_length=10, blank=True)
+    ao_code_type = models.CharField(max_length=5, blank=True)
+    ao_code_range = models.CharField(max_length=10, blank=True)
+    ao_code_number = models.CharField(max_length=10, blank=True)
     
     # 12. Aadhaar
     aadhaar_number = models.CharField(max_length=20, blank=True)
@@ -92,6 +102,11 @@ class PANForm49A(BaseForm):
         return f"PAN 49A - {self.name_on_card or self.id}"
 
 class VoterIDForm6(BaseForm):
+    # 1. Constituency details
+    assembly_constituency = models.CharField(max_length=150, blank=True)
+    district = models.CharField(max_length=100, blank=True)
+    state = models.CharField(max_length=100, blank=True)
+
     # 2. Name of Applicant
     name_english = models.CharField(max_length=255, blank=True)
     name_hindi = models.CharField(max_length=255, blank=True)
@@ -117,6 +132,9 @@ class VoterIDForm6(BaseForm):
     
     # 7. DOB
     dob = models.DateField(null=True, blank=True)
+    place_of_birth_town = models.CharField(max_length=100, blank=True)
+    place_of_birth_state = models.CharField(max_length=100, blank=True)
+    place_of_birth_district = models.CharField(max_length=100, blank=True)
     
     # 8. Address
     house_no = models.CharField(max_length=100, blank=True)
@@ -125,8 +143,14 @@ class VoterIDForm6(BaseForm):
     post_office = models.CharField(max_length=100, blank=True)
     pincode = models.CharField(max_length=20, blank=True)
     tehsil = models.CharField(max_length=100, blank=True)
-    district = models.CharField(max_length=100, blank=True)
-    state = models.CharField(max_length=100, blank=True)
+    
+    # 9. Disability (optional section)
+    disability_type = models.CharField(max_length=50, blank=True)  # locomotor, visual, hearing, speech, intellectual, none
+    disability_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+
+    # 10. Family/neighbor EPIC for verification
+    family_epic_number = models.CharField(max_length=20, blank=True)
+    residence_since = models.DateField(null=True, blank=True)
     
     def __str__(self):
         return f"Voter ID Form 6 - {self.name_english or self.id}"
