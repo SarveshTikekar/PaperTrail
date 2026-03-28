@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import PANForm49A, VoterIDForm6
+from .models import ExtractionMethod, PANForm49A, VoterIDForm6
 
 class PANForm49ASerializer(serializers.ModelSerializer):
     class Meta:
@@ -11,6 +11,13 @@ class VoterIDForm6Serializer(serializers.ModelSerializer):
         model = VoterIDForm6
         fields = '__all__'
 
+
+class ExtractionMethodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExtractionMethod
+        fields = '__all__'
+
+
 class FormUploadSerializer(serializers.Serializer):
     """Serializer for handling image upload and form type selection."""
     FORM_TYPES = [
@@ -20,3 +27,4 @@ class FormUploadSerializer(serializers.Serializer):
     
     image = serializers.ImageField()
     form_type = serializers.ChoiceField(choices=FORM_TYPES)
+    extraction_method = serializers.CharField(required=False, allow_blank=True)

@@ -1,8 +1,29 @@
 from django.db import models
 
+
+class ExtractionMethod(models.Model):
+    slug = models.SlugField(max_length=50, unique=True)
+    name = models.CharField(max_length=100)
+    provider = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    is_visible = models.BooleanField(default=True)
+    is_enabled = models.BooleanField(default=True)
+    supports_images = models.BooleanField(default=True)
+    supports_checkboxes = models.BooleanField(default=False)
+    requires_api_key = models.BooleanField(default=False)
+    sort_order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['sort_order', 'name']
+
+    def __str__(self):
+        return self.name
+
+
 class BaseForm(models.Model):
     original_image = models.ImageField(upload_to='forms/originals/')
     processed_image = models.ImageField(upload_to='forms/processed/', null=True, blank=True)
+    extraction_method = models.CharField(max_length=50, blank=True)
     status = models.CharField(
         max_length=20, 
         choices=[('pending', 'Pending'), ('verified', 'Verified'), ('flagged', 'Flagged')],

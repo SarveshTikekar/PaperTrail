@@ -10,11 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 import tempfile
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
@@ -147,3 +150,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_TESSERACT_PATH = Path(r'C:\Program Files\Tesseract-OCR\tesseract.exe')
 TESSERACT_CMD = str(DEFAULT_TESSERACT_PATH) if DEFAULT_TESSERACT_PATH.exists() else None
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '')
+OPENAI_EXTRACTION_MODEL = os.getenv('OPENAI_EXTRACTION_MODEL', 'gpt-4.1-mini')
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
+GEMINI_EXTRACTION_MODEL = os.getenv('GEMINI_EXTRACTION_MODEL', 'gemini-2.5-flash')

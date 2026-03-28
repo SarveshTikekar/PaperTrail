@@ -17,6 +17,8 @@ export default function UploadPage() {
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [formType, setFormType] = useState('pan_49a');
+  const [methods, setMethods] = useState([]);
+  const [extractionMethod, setExtractionMethod] = useState('local_ocr');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -24,6 +26,23 @@ export default function UploadPage() {
   const { t } = useLanguage();
 
   const currentStep = result ? 3 : loading ? 2 : file ? 1 : 0;
+
+  React.useEffect(() => {
+    const loadMethods = async () => {
+      try {
+        const response = await axios.get('http://127.0.0.1:8000/api/lab/methods/');
+        setMethods(response.data || []);
+        const defaultMethod = response.data?.find((method) => method.is_enabled)?.slug;
+        if (defaultMethod) {
+          setExtractionMethod(defaultMethod);
+        }
+      } catch {
+        setMethods([]);
+      }
+    };
+
+    loadMethods();
+  }, []);
 
   const handleDrop = (e) => {
     e.preventDefault();
@@ -42,6 +61,7 @@ export default function UploadPage() {
       const formData = new FormData();
       formData.append('image', file);
       formData.append('form_type', formType);
+      formData.append('extraction_method', extractionMethod);
 
       const response = await axios.post('http://127.0.0.1:8000/api/lab/upload/', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -107,6 +127,32 @@ export default function UploadPage() {
                 <div>
                   <span className="form-type-name">{ft.label}</span>
                   <span className="form-type-lang">{ft.lang}</span>
+                </div>
+              </label>
+            ))}
+          </div>
+
+          <h3 style={{ margin: '22px 0 16px' }}>Extraction Method</h3>
+          <div className="form-type-list">
+            {(methods.length ? methods : [{ slug: 'local_ocr', name: 'Local OCR', description: 'Fallback local OCR', is_enabled: true }]).map((method) => (
+              <label
+                key={method.slug}
+                className={`form-type-option ${extractionMethod === method.slug ? 'selected' : ''}`}
+                style={{ opacity: method.is_enabled ? 1 : 0.6 }}
+              >
+                <input
+                  type="radio"
+                  name="extractionMethod"
+                  value={method.slug}
+                  checked={extractionMethod === method.slug}
+                  onChange={() => setExtractionMethod(method.slug)}
+                  className="visually-hidden"
+                  disabled={!method.is_enabled}
+                />
+                <div className="form-type-radio" />
+                <div>
+                  <span className="form-type-name">{method.name}</span>
+                  <span className="form-type-lang">{method.description}</span>
                 </div>
               </label>
             ))}
