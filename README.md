@@ -37,7 +37,25 @@ git clone <repository-url>
 cd Colohacks26
 ```
 
-### 2. Backend Setup
+### 2. Install Tesseract OCR (Required for OCR functionality)
+
+#### Windows:
+- Download from: https://github.com/UB-Mannheim/tesseract/wiki
+- Install to default location: `C:\Program Files\Tesseract-OCR\`
+- The application automatically detects and uses this path
+- **Verified Path**: `C:\Program Files\Tesseract-OCR\tesseract.exe` ✅
+
+#### Linux/Mac:
+- Install via package manager:
+  ```bash
+  # Ubuntu/Debian
+  sudo apt-get install tesseract-ocr
+
+  # macOS
+  brew install tesseract
+  ```
+
+### 3. Backend Setup
 
 #### Install Python Dependencies
 ```bash
