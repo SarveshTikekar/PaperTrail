@@ -1,17 +1,9 @@
 import React, { useState } from 'react';
-import Dropzone from '../components/Upload/Dropzone';
-import ProcessingFeedback from '../components/Upload/ProcessingFeedback';
 import { useLanguage } from '../context/LanguageContext';
+import OCRPanel from '../components/OCRPanel';
 
 export default function UploadPage() {
-  const [files, setFiles] = useState([]);
-  const [isProcessing, setIsProcessing] = useState(false);
   const { t } = useLanguage();
-
-  const handleUpload = () => {
-    if (!files || files.length === 0) return;
-    setIsProcessing(true);
-  };
 
   return (
     <div className="animate-fade-in" style={{ maxWidth: '800px', margin: '0 auto' }}>
@@ -20,25 +12,16 @@ export default function UploadPage() {
         <p className="text-muted">{t('uploadDesc')}</p>
       </div>
 
-      <Dropzone onFilesAccepted={setFiles} />
-
-      <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end' }}>
-        <button 
-          className="btn-primary" 
-          onClick={handleUpload} 
-          disabled={!files || files.length === 0}
-          style={{ opacity: (!files || files.length === 0) ? 0.5 : 1, cursor: (!files || files.length === 0) ? 'not-allowed' : 'pointer'}}
-        >
-          {files && files.length > 1 ? t('processDocs') : t('processDocs')}
-        </button>
+      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 mb-8">
+        <OCRPanel />
       </div>
-
-      {isProcessing && (
-        <ProcessingFeedback 
-          isProcessing={isProcessing} 
-          onComplete={() => setIsProcessing(false)}
-        />
-      )}
+      
+      <div className="mt-8 pt-8 border-t border-gray-100">
+        <h3 className="text-lg font-semibold mb-4 text-gray-400">Advanced Options (Internal Lab)</h3>
+        <p className="text-sm text-gray-500 italic">
+          The extraction above uses the new ROI-based multi-model engine.
+        </p>
+      </div>
     </div>
   );
 }
