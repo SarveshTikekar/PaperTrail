@@ -78,6 +78,52 @@ export default function DataPane({ data, onFieldFocus }) {
         ))}
 
         <div style={{ marginTop: '40px', borderTop: '1px solid var(--border-subtle)', paddingTop: '24px' }}>
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+                <button 
+                    className="btn-secondary" 
+                    style={{ flex: 1, backgroundColor: '#dc3545', color: 'white', border: 'none' }}
+                    onClick={() => alert('Document rejected. This will be flagged for manual review.')}
+                >
+                    <AlertTriangle size={18} style={{ marginRight: '8px' }} /> Reject Document
+                </button>
+                <button 
+                    className="btn-secondary" 
+                    style={{ flex: 1, backgroundColor: '#ffc107', color: '#212529', border: 'none' }}
+                    onClick={() => alert('Re-scan requested. Document will be sent back for re-processing.')}
+                >
+                    <Info size={18} style={{ marginRight: '8px' }} /> Request Re-scan
+                </button>
+            </div>
+            
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+                <select 
+                    style={{ 
+                        flex: 1, 
+                        padding: '8px 12px', 
+                        border: '1px solid var(--border-subtle)', 
+                        borderRadius: '4px',
+                        backgroundColor: 'var(--bg-primary)',
+                        color: 'var(--text-primary)'
+                    }}
+                    defaultValue=""
+                >
+                    <option value="" disabled>Report Issue</option>
+                    <option value="wrong_scan">Wrong Document Scanned</option>
+                    <option value="poor_quality">Poor Image Quality</option>
+                    <option value="wrong_orientation">Wrong Orientation</option>
+                    <option value="missing_pages">Missing Pages</option>
+                    <option value="blurry_text">Blurry/Unreadable Text</option>
+                    <option value="other">Other Issue</option>
+                </select>
+                <button 
+                    className="btn-secondary" 
+                    style={{ padding: '8px 16px' }}
+                    onClick={() => alert('Issue reported. Document will be flagged for review.')}
+                >
+                    Report Issue
+                </button>
+            </div>
+            
             <button className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
               <Save size={18} /> Confirm & Submit Form
             </button>
