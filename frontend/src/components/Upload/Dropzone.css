@@ -1,0 +1,83 @@
+.dropzone {
+  border: 2px dashed var(--border-subtle);
+  border-radius: 16px;
+  padding: 60px 20px;
+  text-align: center;
+  background: var(--bg-secondary);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.dropzone:hover, .dropzone.drag-active {
+  border-color: var(--accent-primary);
+  background: var(--accent-bg);
+}
+
+.drop-icon {
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
+}
+
+.dropzone.drag-active .drop-icon {
+  color: var(--accent-primary);
+  transform: translateY(-5px) scale(1.1);
+}
+
+.hidden-input {
+  display: none;
+}
+
+.error-text {
+  color: var(--conf-low);
+  background: var(--conf-low-bg);
+  padding: 8px 16px;
+  border-radius: 8px;
+  display: inline-block;
+  margin-top: 16px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Preview Styles */
+.preview-container {
+  padding: 24px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.preview-img {
+  width: 100%;
+  max-height: 400px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: var(--bg-tertiary);
+}
+
+.clear-btn {
+  position: absolute;
+  top: 36px;
+  right: 36px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s ease;
+}
+
+.clear-btn:hover {
+  background: var(--conf-low);
+  border-color: var(--conf-low);
+  color: white;
+}
