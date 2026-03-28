@@ -9,7 +9,7 @@ export default function OCRPanel() {
 
   const onSubmit = async (e) => {
     e.preventDefault()
-    if (!file) return setError('Please select an image file')
+    if (!file) return setError('Please select an image or PDF file')
 
     setLoading(true)
     setError('')
@@ -38,7 +38,7 @@ export default function OCRPanel() {
       <form onSubmit={onSubmit} className="space-y-4">
         <input
           type="file"
-          accept="image/*"
+          accept="image/*,.pdf"
           onChange={(e) => setFile(e.target.files?.[0] || null)}
           className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"
         />

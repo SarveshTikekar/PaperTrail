@@ -92,7 +92,7 @@ Frontend will be available at: `http://localhost:5173/`
 
 ### Test OCR API
 ```bash
-# From backend directory
+# From backend directory - Test with image
 python -c "
 import requests
 response = requests.post('http://127.0.0.1:8000/api/ocr/',
@@ -100,7 +100,20 @@ response = requests.post('http://127.0.0.1:8000/api/ocr/',
 print('Status:', response.status_code)
 print('Response:', response.json())
 "
+
+# Test with PDF (if you have a PDF file)
+python -c "
+import requests
+response = requests.post('http://127.0.0.1:8000/api/ocr/',
+                        files={'image': open('sample.pdf', 'rb')})
+print('Status:', response.status_code)
+print('Response:', response.json())
+"
 ```
+
+**Supported File Types:**
+- Images: PNG, JPG, JPEG, GIF, BMP, TIFF
+- PDFs: Single and multi-page PDF documents with embedded images
 
 ### Frontend Commands
 ```bash
