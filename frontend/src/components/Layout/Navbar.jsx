@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, Upload, FileCheck, Layers, Moon, Sun, Globe } from 'lucide-react';
+import { Home, Upload, FileCheck, Layers, Moon, Sun, Globe, FlaskConical } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import './Navbar.css';
 
@@ -34,6 +34,9 @@ export default function Navbar() {
         </NavLink>
         <NavLink to="/verify" className={({isActive}) => isActive ? "nav-link active" : "nav-link"}>
           <FileCheck size={15} /> <span>{t('verify')}</span>
+        </NavLink>
+        <NavLink to="/ocr-test" className={({isActive}) => isActive ? "nav-link active" : "nav-link"}>
+          <FlaskConical size={15} /> <span>{t('ocrTest')}</span>
         </NavLink>
       </div>
       

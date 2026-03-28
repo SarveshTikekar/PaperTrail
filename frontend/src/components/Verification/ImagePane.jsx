@@ -40,7 +40,7 @@ export default function ImagePane({ activeBoxId, imageUrl }) {
         </div>
 
         <div style={{ color: 'var(--text-secondary)', fontSize: '0.78rem', fontWeight: 600 }}>
-          {activeBoxId ? `Focused field: ${activeBoxId}` : 'No field selected'}
+          {activeBoxId ? `Focused field: ${activeBoxId}` : 'Select a field to highlight it here'}
         </div>
       </div>
 

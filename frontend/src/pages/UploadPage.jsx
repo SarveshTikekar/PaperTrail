@@ -12,6 +12,7 @@ const FORM_TYPES = [
 ];
 
 const STEPS = ['Select Form', 'Upload Image', 'Processing', 'Results'];
+const RECOMMENDED_METHOD = 'ollama_vision';
 
 export default function UploadPage() {
   const navigate = useNavigate();
@@ -32,7 +33,9 @@ export default function UploadPage() {
       try {
         const response = await axios.get('http://127.0.0.1:8000/api/lab/methods/');
         setMethods(response.data || []);
-        const defaultMethod = response.data?.find((method) => method.is_enabled)?.slug;
+        const preferredOrder = ['ollama_vision', 'minicpm_vision', 'local_ocr', 'gemini_vision', 'openai_vision'];
+        const defaultMethod = preferredOrder.find((slug) => response.data?.some((method) => method.slug === slug && method.is_enabled))
+          || response.data?.find((method) => method.is_enabled)?.slug;
         if (defaultMethod) {
           setExtractionMethod(defaultMethod);
         }
@@ -80,6 +83,8 @@ export default function UploadPage() {
     setResult(null);
     setError('');
   };
+
+  const selectedMethod = methods.find((method) => method.slug === extractionMethod);
 
   return (
     <div className="upload-page animate-fade-in">
@@ -151,12 +156,48 @@ export default function UploadPage() {
                 />
                 <div className="form-type-radio" />
                 <div>
-                  <span className="form-type-name">{method.name}</span>
+                  <span className="form-type-name" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <span>{method.name}</span>
+                    {method.slug === RECOMMENDED_METHOD ? (
+                      <span
+                        style={{
+                          fontSize: '0.65rem',
+                          fontWeight: 700,
+                          padding: '2px 8px',
+                          borderRadius: '999px',
+                          background: 'var(--accent-subtle)',
+                          color: 'var(--accent-primary)',
+                          border: '1px solid var(--accent-primary)',
+                        }}
+                      >
+                        Recommended
+                      </span>
+                    ) : null}
+                  </span>
                   <span className="form-type-lang">{method.description}</span>
                 </div>
               </label>
             ))}
           </div>
+          {selectedMethod ? (
+            <div
+              style={{
+                marginTop: '14px',
+                padding: '12px',
+                borderRadius: '10px',
+                background: 'var(--bg-secondary)',
+                border: '1px solid var(--border-subtle)',
+                fontSize: '0.78rem',
+                color: 'var(--text-secondary)',
+                lineHeight: 1.45,
+              }}
+            >
+              <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>
+                {selectedMethod.name}
+              </div>
+              <div>{selectedMethod.description}</div>
+            </div>
+          ) : null}
         </div>
 
         {/* Right: Upload Area */}

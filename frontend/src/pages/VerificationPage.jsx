@@ -70,7 +70,7 @@ export default function VerificationPage() {
               Record <span className="mono" style={{ color: 'var(--text-secondary)' }}>{selectedRecord.id}</span>
             </h1>
             <p style={{ margin: '4px 0 0 0', color: 'var(--text-secondary)', fontSize: '0.82rem' }}>
-              {selectedRecord.form_type} {savedAt ? `• saved at ${savedAt}` : ''}
+              {selectedRecord.form_type} • {selectedRecord.extraction_method || 'local_ocr'} {savedAt ? `• saved at ${savedAt}` : ''}
             </p>
           </div>
           <div

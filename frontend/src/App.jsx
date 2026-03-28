@@ -9,6 +9,7 @@ import Layout from './components/Layout/Layout';
 import DashboardPage from './pages/DashboardPage';
 import UploadPage from './pages/UploadPage';
 import VerificationPage from './pages/VerificationPage';
+import OCRTestPage from './pages/OCRTestPage';
 
 import './App.css';
 
@@ -21,6 +22,7 @@ function App() {
             <Route index element={<DashboardPage />} />
             <Route path="upload" element={<UploadPage />} />
             <Route path="verify" element={<VerificationPage />} />
+            <Route path="ocr-test" element={<OCRTestPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

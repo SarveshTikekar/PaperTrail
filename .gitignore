@@ -279,3 +279,6 @@ jspm_packages/
 
 # DynamoDB Local files
 .dynamodb/
+
+# Media uploads (user-uploaded files)
+backend/media/
