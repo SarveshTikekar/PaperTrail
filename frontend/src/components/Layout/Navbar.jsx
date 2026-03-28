@@ -17,32 +17,32 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="navbar glass-panel">
+    <nav className="navbar">
       <div className="navbar-brand">
         <Layers className="brand-icon" />
-        <span className="brand-name text-gradient">PaperTrail</span>
+        <span className="brand-name text-gradient">
+          <span className="brand-name-light">Paper</span>Trail
+        </span>
       </div>
       
       <div className="navbar-links">
-        <NavLink to="/" className={({isActive}) => isActive ? "nav-link active" : "nav-link"}>
-          <Home size={18} /> <span>{t('dashboard')}</span>
+        <NavLink to="/" className={({isActive}) => isActive ? "nav-link active" : "nav-link"} end>
+          <Home size={15} /> <span>{t('dashboard')}</span>
         </NavLink>
         <NavLink to="/upload" className={({isActive}) => isActive ? "nav-link active" : "nav-link"}>
-          <Upload size={18} /> <span>{t('upload')}</span>
+          <Upload size={15} /> <span>{t('upload')}</span>
         </NavLink>
         <NavLink to="/verify" className={({isActive}) => isActive ? "nav-link active" : "nav-link"}>
-          <FileCheck size={18} /> <span>{t('verify')}</span>
+          <FileCheck size={15} /> <span>{t('verify')}</span>
         </NavLink>
       </div>
       
       <div className="navbar-user" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-        
-        <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-tertiary)', borderRadius: '20px', padding: '4px 12px' }}>
-          <Globe size={14} style={{ marginRight: '6px', color: 'var(--text-secondary)' }} />
+        <div className="lang-switcher">
+          <Globe size={13} style={{ color: 'var(--text-tertiary)' }} />
           <select 
             value={lang} 
             onChange={(e) => setLang(e.target.value)}
-            style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', outline: 'none', fontSize: '0.85rem' }}
           >
             <option value="en">EN</option>
             <option value="hi">HI</option>
@@ -52,13 +52,12 @@ export default function Navbar() {
 
         <button 
           onClick={toggleTheme} 
-          className="btn-secondary" 
-          style={{ padding: '8px', borderRadius: '50%', border: 'none' }}
+          className="theme-toggle"
           title="Toggle Theme"
         >
-          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
         </button>
-        <div className="user-avatar" style={{ marginLeft: '8px' }}>AD</div>
+        <div className="user-avatar">AD</div>
       </div>
     </nav>
   );

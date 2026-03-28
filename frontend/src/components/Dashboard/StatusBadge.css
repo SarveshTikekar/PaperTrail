@@ -1,65 +1,59 @@
+/* ─── Status Badge ─── */
 .status-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 0.8rem;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
   font-weight: 600;
   position: relative;
   overflow: hidden;
-  border: 1px solid transparent;
+  letter-spacing: 0.01em;
 }
 
-.status-badge span {
-  position: relative;
-  z-index: 2;
-}
-
+.status-badge span,
 .status-badge svg {
   position: relative;
   z-index: 2;
 }
 
-/* Base Styles & Glow */
+/* Shine animation — subtle, slow */
 .badge-glow {
   position: absolute;
   top: 0;
   left: -100%;
-  width: 50%;
+  width: 60%;
   height: 100%;
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.4),
+    rgba(255, 255, 255, 0.2),
     transparent
   );
   transform: skewX(-20deg);
-  animation: shine 4s infinite;
+  animation: badgeShine 5s infinite;
   z-index: 1;
 }
 
-@keyframes shine {
+@keyframes badgeShine {
   0% { left: -100%; }
-  20% { left: 200%; }
+  15% { left: 200%; }
   100% { left: 200%; }
 }
 
-/* Variants */
+/* ─── Variants ─── */
 .badge-verified {
   color: var(--conf-high);
   background: var(--conf-high-bg);
-  border-color: rgba(16, 185, 129, 0.3);
 }
 
 .badge-pending {
   color: var(--conf-medium);
   background: var(--conf-medium-bg);
-  border-color: rgba(245, 158, 11, 0.3);
 }
 
 .badge-processing {
-  color: var(--accent-primary);
-  background: var(--accent-bg);
-  border-color: rgba(99, 102, 241, 0.3);
+  color: var(--secondary);
+  background: var(--secondary-subtle);
 }

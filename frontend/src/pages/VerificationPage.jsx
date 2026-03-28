@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import DualPaneLayout from '../components/Verification/DualPaneLayout';
 import { useLanguage } from '../context/LanguageContext';
-import { AlertTriangle, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { FileCheck, AlertTriangle, CheckCircle, Clock, XCircle } from 'lucide-react';
 
 export default function VerificationPage() {
   const { t } = useLanguage();
-  const [documentStatus, setDocumentStatus] = useState('pending'); // pending, approved, rejected, flagged
+  const [documentStatus, setDocumentStatus] = useState('pending');
   
-  // Mock data for demonstration purposes
   const mockExtractedData = [
     { id: 'field_name', label: 'Full Name', value: 'JOHNATHAN SMITH', originalOCR: 'JOHMATHAN SMITH', confidence: 'medium' },
     { id: 'field_dob', label: 'Date of Birth', value: '1985-11-23', originalOCR: '1985-11-23', confidence: 'high' },
@@ -15,77 +14,82 @@ export default function VerificationPage() {
     { id: 'field_id_number', label: 'ID Number', value: 'AB-123-456', originalOCR: 'AB-123-456', confidence: 'high' }
   ];
 
-  const getStatusIcon = (status) => {
+  const getStatusConfig = (status) => {
     switch (status) {
-      case 'approved': return <CheckCircle color="#28a745" size={20} />;
-      case 'rejected': return <XCircle color="#dc3545" size={20} />;
-      case 'flagged': return <AlertTriangle color="#ffc107" size={20} />;
-      default: return <Clock color="#6c757d" size={20} />;
+      case 'approved': return { icon: <CheckCircle size={14} />, text: 'Approved', color: 'var(--conf-high)', bg: 'var(--conf-high-bg)' };
+      case 'rejected': return { icon: <XCircle size={14} />, text: 'Rejected', color: 'var(--conf-low)', bg: 'var(--conf-low-bg)' };
+      case 'flagged': return { icon: <AlertTriangle size={14} />, text: 'Flagged', color: 'var(--conf-medium)', bg: 'var(--conf-medium-bg)' };
+      default: return { icon: <Clock size={14} />, text: 'Pending Review', color: 'var(--text-secondary)', bg: 'var(--bg-tertiary)' };
     }
   };
 
-  const getStatusText = (status) => {
-    switch (status) {
-      case 'approved': return 'Approved';
-      case 'rejected': return 'Rejected';
-      case 'flagged': return 'Flagged for Review';
-      default: return 'Pending Review';
-    }
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'approved': return '#28a745';
-      case 'rejected': return '#dc3545';
-      case 'flagged': return '#ffc107';
-      default: return '#6c757d';
-    }
-  };
+  const statusCfg = getStatusConfig(documentStatus);
 
   return (
     <div className="animate-fade-in" style={{ height: '100%' }}>
-      <div className="flex-between" style={{ marginBottom: '20px' }}>
-         <div>
-             <h1 style={{ fontSize: '1.75rem', margin: '0 0 8px 0' }}>Record: <span style={{ fontFamily: 'monospace' }}>REC-1042</span></h1>
-             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-               {getStatusIcon(documentStatus)}
-               <span style={{ 
-                 color: getStatusColor(documentStatus), 
-                 fontWeight: '600', 
-                 fontSize: '0.9rem' 
-               }}>
-                 {getStatusText(documentStatus)}
-               </span>
-             </div>
-         </div>
-         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', background: 'var(--bg-secondary)', padding: '10px 16px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
-             <span className="text-muted" style={{ fontSize: '0.85rem' }}>{t('docType')}:</span>
-             <select style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', outline: 'none', fontWeight: '600', cursor: 'pointer' }}>
-                 <option>Driving License</option>
-                 <option>Tax Form W-9</option>
-                 <option>Invoice</option>
-                 <option>Certificate Application</option>
-             </select>
-             <button className="btn-secondary" style={{ padding: '4px 12px', fontSize: '0.8rem' }}>{t('overrideType')}</button>
-         </div>
+      <div className="flex-between" style={{ marginBottom: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ 
+            padding: '8px', 
+            background: 'var(--accent-subtle)', 
+            borderRadius: 'var(--radius-md)', 
+            color: 'var(--accent-primary)',
+            display: 'flex'
+          }}>
+            <FileCheck size={18} />
+          </div>
+          <div>
+            <h1 style={{ fontSize: '1.35rem', margin: 0 }}>
+              Record <span className="mono" style={{ color: 'var(--text-secondary)' }}>REC-1042</span>
+            </h1>
+          </div>
+          {/* Status badge */}
+          <div style={{ 
+            display: 'flex', alignItems: 'center', gap: '5px',
+            padding: '4px 10px', borderRadius: '6px',
+            background: statusCfg.bg, color: statusCfg.color,
+            fontSize: '0.75rem', fontWeight: 600
+          }}>
+            {statusCfg.icon} {statusCfg.text}
+          </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span className="text-muted text-xs">{t('docType')}</span>
+          <select 
+            className="btn-secondary"
+            style={{ 
+              background: 'var(--bg-tertiary)', 
+              cursor: 'pointer',
+              fontSize: '0.82rem',
+              fontFamily: 'var(--font-sans)',
+              color: 'var(--text-primary)',
+              fontWeight: 600
+            }}
+          >
+            <option>Driving License</option>
+            <option>Tax Form W-9</option>
+            <option>Invoice</option>
+            <option>Certificate Application</option>
+          </select>
+        </div>
       </div>
       
-      {/* Document Issues Alert */}
+      {/* Document Quality Alert — kept from main, restyled */}
       <div style={{
-        padding: '16px',
+        padding: '12px 14px',
         background: 'var(--conf-low-bg)',
-        border: '1px solid var(--conf-low)',
-        borderRadius: '8px',
-        marginBottom: '20px',
+        border: '1px solid rgba(239, 68, 68, 0.2)',
+        borderRadius: 'var(--radius-md)',
+        marginBottom: '16px',
         display: 'flex',
-        gap: '12px',
+        gap: '10px',
         alignItems: 'flex-start'
       }}>
-        <AlertTriangle color="var(--conf-low)" size={24} style={{ flexShrink: 0 }} />
+        <AlertTriangle color="var(--conf-low)" size={18} style={{ flexShrink: 0, marginTop: '1px' }} />
         <div>
-          <h4 style={{ color: 'var(--conf-low)', margin: '0 0 4px 0', fontSize: '0.95rem' }}>Document Quality Issues Detected</h4>
-          <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-            This document appears to have scanning issues. Please review carefully and use the reject or re-scan options if the quality is unacceptable.
+          <h4 style={{ color: 'var(--conf-low)', margin: '0 0 2px 0', fontSize: '0.85rem' }}>Document Quality Issues Detected</h4>
+          <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+            This document appears to have scanning issues. Review carefully and use the reject or re-scan options if needed.
           </p>
         </div>
       </div>

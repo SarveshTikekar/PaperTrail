@@ -1,0 +1,332 @@
+/* ─── Upload Page ─── */
+.upload-page {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.upload-header {
+  margin-bottom: 24px;
+}
+
+/* ─── Step Indicator ─── */
+.step-indicator {
+  display: flex;
+  align-items: center;
+  margin-bottom: 28px;
+  gap: 0;
+}
+
+.step-dot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.step-dot:last-child {
+  flex: 0;
+}
+
+.step-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: var(--bg-tertiary);
+  color: var(--text-tertiary);
+  border: 2px solid var(--border-subtle);
+  transition: all var(--transition-smooth);
+  flex-shrink: 0;
+}
+
+.step-dot.active .step-circle {
+  background: var(--accent-subtle);
+  color: var(--accent-primary);
+  border-color: var(--accent-primary);
+}
+
+.step-dot.done .step-circle {
+  background: var(--conf-high-bg);
+  color: var(--conf-high);
+  border-color: var(--conf-high);
+}
+
+.step-text {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+.step-dot.active .step-text {
+  color: var(--accent-primary);
+  font-weight: 600;
+}
+
+.step-dot.done .step-text {
+  color: var(--conf-high);
+}
+
+.step-line {
+  flex: 1;
+  height: 2px;
+  background: var(--border-subtle);
+  margin: 0 8px;
+  border-radius: 1px;
+  position: relative;
+}
+
+.step-dot.done .step-line,
+.step-dot.active .step-line {
+  background: var(--accent-primary);
+}
+
+/* ─── Upload Grid ─── */
+.upload-grid {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .upload-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ─── Config Panel ─── */
+.upload-config {
+  padding: 20px;
+  align-self: flex-start;
+}
+
+.form-type-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-type-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  background: transparent;
+}
+
+.form-type-option:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-medium);
+}
+
+.form-type-option.selected {
+  background: var(--accent-subtle);
+  border-color: var(--accent-primary);
+}
+
+.form-type-radio {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--text-tertiary);
+  flex-shrink: 0;
+  position: relative;
+  transition: all var(--transition-fast);
+}
+
+.form-type-option.selected .form-type-radio {
+  border-color: var(--accent-primary);
+}
+
+.form-type-option.selected .form-type-radio::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+}
+
+.form-type-name {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.form-type-lang {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+  margin-top: 1px;
+}
+
+/* ─── Upload Area ─── */
+.upload-area {
+  padding: 20px;
+}
+
+.drop-zone {
+  border: 2px dashed var(--border-medium);
+  border-radius: var(--radius-lg);
+  padding: 40px 20px;
+  text-align: center;
+  transition: all var(--transition-smooth);
+  cursor: pointer;
+  position: relative;
+}
+
+.drop-zone:hover,
+.drop-zone.drag-active {
+  border-color: var(--accent-primary);
+  background: var(--accent-subtle);
+}
+
+.drop-zone.has-file {
+  border-style: solid;
+  border-color: var(--border-medium);
+  padding: 16px 20px;
+  cursor: default;
+}
+
+.drop-zone-content {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.drop-zone-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: var(--accent-subtle);
+  color: var(--accent-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--transition-spring);
+}
+
+.drop-zone:hover .drop-zone-icon,
+.drop-zone.drag-active .drop-zone-icon {
+  transform: translateY(-4px) scale(1.05);
+}
+
+/* ─── File Preview ─── */
+.file-preview {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+}
+
+.file-preview-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--secondary-subtle);
+  color: var(--secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.file-preview-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.file-preview-name {
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+}
+
+.file-preview-size {
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+  margin-top: 1px;
+}
+
+/* ─── Error Display ─── */
+.upload-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: var(--conf-low-bg);
+  color: var(--conf-low);
+  border-radius: var(--radius-md);
+  font-size: 0.82rem;
+  font-weight: 500;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* ─── Results ─── */
+.result-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.result-icon-success {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--conf-high-bg);
+  color: var(--conf-high);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.result-body {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+}
+
+.result-json {
+  padding: 16px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-height: 360px;
+  overflow-y: auto;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ─── Spinner ─── */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.icon-spin {
+  animation: spin 1s linear infinite;
+}
