@@ -28,8 +28,8 @@ class OCRAPIView(APIView):
             # Import pytesseract only when needed to avoid startup issues
             import pytesseract
 
-            # Set Tesseract path for Windows (default installation location)
-            pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+            # Tesseract path for Windows (default installation location)
+            # pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
             extracted_text = ""
 
