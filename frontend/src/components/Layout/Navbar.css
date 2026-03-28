@@ -1,100 +1,157 @@
+/* ─── Navbar ─── */
 .navbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 2rem;
+  padding: 0 24px;
+  height: 56px;
   border-radius: 0;
-  border-left: none;
-  border-right: none;
-  border-top: none;
+  border: none;
+  border-bottom: 1px solid var(--border-subtle);
   z-index: 100;
   background: var(--bg-secondary);
+  position: relative;
 }
 
+/* Saffron accent stripe at the top */
+.navbar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-primary), #f59e0b, var(--accent-primary));
+}
+
+/* ─── Brand ─── */
 .navbar-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 9px;
 }
 
 .brand-icon {
   color: var(--accent-primary);
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
 }
 
 .brand-name {
-  font-size: 1.25rem;
+  font-size: 1.05rem;
   font-weight: 700;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.035em;
 }
 
+.brand-name-light {
+  font-weight: 400;
+  opacity: 0.7;
+}
+
+/* ─── Nav Links ─── */
 .navbar-links {
   display: flex;
-  gap: 8px;
+  gap: 4px;
+  background: var(--bg-tertiary);
+  padding: 3px;
+  border-radius: 9px;
 }
 
 .nav-link {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
+  gap: 6px;
+  padding: 6px 14px;
   color: var(--text-secondary);
   text-decoration: none;
   font-weight: 500;
-  font-size: 0.95rem;
-  border-radius: 8px;
-  transition: all 0.2s ease;
+  font-size: 0.82rem;
+  border-radius: 7px;
+  transition: all var(--transition-fast);
+  position: relative;
 }
 
 .nav-link:hover {
   color: var(--text-primary);
-  background: var(--bg-tertiary);
 }
 
 .nav-link.active {
-  color: var(--accent-primary);
-  background: var(--accent-bg);
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+  box-shadow: var(--shadow-sm);
 }
 
+/* ─── User Area ─── */
 .navbar-user {
   display: flex;
   align-items: center;
 }
 
+.lang-switcher {
+  display: flex;
+  align-items: center;
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+  padding: 4px 10px;
+  gap: 5px;
+  border: 1px solid var(--border-subtle);
+}
+
+.lang-switcher select {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  outline: none;
+  font-size: 0.78rem;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  cursor: pointer;
+}
+
+.theme-toggle {
+  padding: 7px;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.theme-toggle:hover {
+  color: var(--accent-primary);
+  background: var(--accent-subtle);
+  border-color: var(--accent-primary);
+}
+
 .user-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: var(--accent-primary);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--accent-primary), #f59e0b);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
-  font-size: 0.9rem;
+  font-weight: 700;
+  font-size: 0.75rem;
   cursor: pointer;
+  transition: transform var(--transition-spring);
 }
 
-/* RESPONSIVE NAV */
+.user-avatar:hover {
+  transform: scale(1.05);
+}
+
+/* ─── Responsive ─── */
 @media (max-width: 768px) {
-  .navbar {
-    padding: 1rem;
-  }
-  .brand-name {
-    display: none;
-  }
-  .nav-link span {
-    display: none; /* Provide an inner span to hide text, or we just rely on the whole link hiding entirely if we wanted */
-  }
-  .navbar-links {
-    gap: 2px;
-  }
-  .nav-link {
-    padding: 8px;
-    font-size: 0; /* hides text */
-  }
-  .nav-link svg {
-    margin: 0;
-  }
+  .navbar { padding: 0 14px; }
+  .brand-name { display: none; }
+  .nav-link span { display: none; }
+  .navbar-links { gap: 2px; padding: 3px; }
+  .nav-link { padding: 7px; }
+  .lang-switcher { display: none; }
 }

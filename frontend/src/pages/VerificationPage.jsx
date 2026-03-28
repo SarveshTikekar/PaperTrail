@@ -1,11 +1,11 @@
 import React from 'react';
 import DualPaneLayout from '../components/Verification/DualPaneLayout';
 import { useLanguage } from '../context/LanguageContext';
+import { FileCheck } from 'lucide-react';
 
 export default function VerificationPage() {
   const { t } = useLanguage();
   
-  // Mock data for demonstration purposes
   const mockExtractedData = [
     { id: 'field_name', label: 'Full Name', value: 'JOHNATHAN SMITH', originalOCR: 'JOHMATHAN SMITH', confidence: 'medium' },
     { id: 'field_dob', label: 'Date of Birth', value: '1985-11-23', originalOCR: '1985-11-23', confidence: 'high' },
@@ -15,20 +15,42 @@ export default function VerificationPage() {
 
   return (
     <div className="animate-fade-in" style={{ height: '100%' }}>
-      <div className="flex-between" style={{ marginBottom: '20px' }}>
-         <div>
-             <h1 style={{ fontSize: '1.75rem', margin: '0 0 8px 0' }}>Record: <span style={{ fontFamily: 'monospace' }}>REC-1042</span></h1>
-         </div>
-         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', background: 'var(--bg-secondary)', padding: '10px 16px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
-             <span className="text-muted" style={{ fontSize: '0.85rem' }}>{t('docType')}:</span>
-             <select style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', outline: 'none', fontWeight: '600', cursor: 'pointer' }}>
-                 <option>Driving License</option>
-                 <option>Tax Form W-9</option>
-                 <option>Invoice</option>
-                 <option>Certificate Application</option>
-             </select>
-             <button className="btn-secondary" style={{ padding: '4px 12px', fontSize: '0.8rem' }}>{t('overrideType')}</button>
-         </div>
+      <div className="flex-between" style={{ marginBottom: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ 
+            padding: '8px', 
+            background: 'var(--accent-subtle)', 
+            borderRadius: 'var(--radius-md)', 
+            color: 'var(--accent-primary)',
+            display: 'flex'
+          }}>
+            <FileCheck size={18} />
+          </div>
+          <div>
+            <h1 style={{ fontSize: '1.35rem', margin: 0 }}>
+              Record <span className="mono" style={{ color: 'var(--text-secondary)' }}>REC-1042</span>
+            </h1>
+          </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span className="text-muted text-xs">{t('docType')}</span>
+          <select 
+            className="btn-secondary"
+            style={{ 
+              background: 'var(--bg-tertiary)', 
+              cursor: 'pointer',
+              fontSize: '0.82rem',
+              fontFamily: 'var(--font-sans)',
+              color: 'var(--text-primary)',
+              fontWeight: 600
+            }}
+          >
+            <option>Driving License</option>
+            <option>Tax Form W-9</option>
+            <option>Invoice</option>
+            <option>Certificate Application</option>
+          </select>
+        </div>
       </div>
       
       <DualPaneLayout initialData={mockExtractedData} />

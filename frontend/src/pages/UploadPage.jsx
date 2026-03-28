@@ -1,114 +1,212 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import Dropzone from '../components/Upload/Dropzone';
-import ProcessingFeedback from '../components/Upload/ProcessingFeedback';
 import { useLanguage } from '../context/LanguageContext';
-import OCRPanel from '../components/OCRPanel';
+import { Upload, FileText, ChevronRight, Loader2, CheckCircle, AlertCircle, X } from 'lucide-react';
+import './UploadPage.css';
+
+const FORM_TYPES = [
+  { value: 'pan_49a', label: 'PAN Card — Form 49A', lang: 'English' },
+  { value: 'voter_6', label: 'Voter ID — Form 6', lang: 'Hindi + English' },
+];
+
+const STEPS = ['Select Form', 'Upload Image', 'Processing', 'Results'];
 
 export default function UploadPage() {
-  const [files, setFiles] = useState([]);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [uploadResults, setUploadResults] = useState([]);
+  const [file, setFile] = useState(null);
+  const [formType, setFormType] = useState('pan_49a');
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [dragActive, setDragActive] = useState(false);
   const { t } = useLanguage();
 
-  const handleUpload = async () => {
-    if (!files || files.length === 0) return;
-    setIsProcessing(true);
-    setUploadResults([]);
+  const currentStep = result ? 3 : loading ? 2 : file ? 1 : 0;
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragActive(false);
+    const dropped = e.dataTransfer.files?.[0];
+    if (dropped) setFile(dropped);
+  };
+
+  const handleSubmit = async () => {
+    if (!file) return setError('Please select a file first');
+    setLoading(true);
+    setError('');
+    setResult(null);
 
     try {
-      const results = [];
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('form_type', formType);
 
-      for (const file of files) {
-        const formType = determineFormType(file);
-
-        const formData = new FormData();
-        formData.append('image', file);
-        formData.append('form_type', formType);
-
-        const response = await axios.post('http://127.0.0.1:8000/api/lab/upload/', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-
-        results.push({
-          file: file.name,
-          formType,
-          data: response.data,
-          success: true
-        });
-      }
-
-      setUploadResults(results);
-    } catch (error) {
-      console.error('Upload error:', error);
-      setUploadResults([{
-        file: files[0]?.name || 'Unknown',
-        success: false,
-        error: error.response?.data?.error || error.message
-      }]);
+      const response = await axios.post('http://127.0.0.1:8000/api/lab/upload/', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      setResult(response.data);
+    } catch (err) {
+      setError(err?.response?.data?.error || err?.response?.data?.detail || err.message || 'OCR processing failed');
     } finally {
-      setIsProcessing(false);
+      setLoading(false);
     }
   };
 
-  const determineFormType = (file) => {
-    const fileName = file.name.toLowerCase();
-    if (fileName.includes('pan') || fileName.includes('49a')) {
-      return 'pan_49a';
-    }
-    return 'voter_6';
+  const resetForm = () => {
+    setFile(null);
+    setResult(null);
+    setError('');
   };
 
   return (
-    <div className="animate-fade-in" style={{ maxWidth: '800px', margin: '0 auto' }}>
-      <div style={{ marginBottom: '32px' }}>
-        <h1>{t('uploadDoc')}</h1>
-        <p className="text-muted">{t('uploadDesc')}</p>
-      </div>
-
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 mb-8">
-        <OCRPanel />
-      </div>
-      
-      <div className="mt-8 pt-8 border-t border-gray-100">
-        <h3 className="text-lg font-semibold mb-4 text-gray-400">Advanced Options (Internal Lab)</h3>
-        <p className="text-sm text-gray-500 italic">
-          The extraction above uses the new ROI-based multi-model engine.
-        </p>
-      </div>
-
-      {isProcessing && (
-        <ProcessingFeedback 
-          isProcessing={isProcessing} 
-          onComplete={() => setIsProcessing(false)}
-        />
-      )}
-
-      {uploadResults.length > 0 && !isProcessing && (
-        <div style={{ marginTop: '24px', padding: '16px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
-          <h3>Upload Results:</h3>
-          {uploadResults.map((result, index) => (
-            <div key={index} style={{ marginBottom: '16px', padding: '12px', backgroundColor: result.success ? '#d4edda' : '#f8d7da', borderRadius: '4px' }}>
-              <strong>{result.file}</strong> ({result.formType || 'Unknown type'})
-              {result.success ? (
-                <div>
-                  <p style={{ color: '#155724', margin: '8px 0' }}>✅ Successfully processed!</p>
-                  <details>
-                    <summary>View extracted data</summary>
-                    <pre style={{ fontSize: '12px', marginTop: '8px', whiteSpace: 'pre-wrap' }}>
-                      {JSON.stringify(result.data, null, 2)}
-                    </pre>
-                  </details>
-                </div>
-              ) : (
-                <p style={{ color: '#721c24', margin: '8px 0' }}>❌ Error: {result.error}</p>
-              )}
-            </div>
-          ))}
+    <div className="upload-page animate-fade-in">
+      <div className="upload-header">
+        <div>
+          <h1>{t('uploadDoc')}</h1>
+          <p className="text-muted text-sm" style={{ marginTop: '4px' }}>
+            {t('uploadDesc')}
+          </p>
         </div>
-      )}
+      </div>
+
+      {/* Step Indicator */}
+      <div className="step-indicator">
+        {STEPS.map((step, i) => (
+          <div key={step} className={`step-dot ${i <= currentStep ? 'active' : ''} ${i < currentStep ? 'done' : ''}`}>
+            <div className="step-circle">
+              {i < currentStep ? <CheckCircle size={14} /> : <span>{i + 1}</span>}
+            </div>
+            <span className="step-text">{step}</span>
+            {i < STEPS.length - 1 && <div className="step-line" />}
+          </div>
+        ))}
+      </div>
+
+      <div className="upload-grid">
+        {/* Left: Form Config */}
+        <div className="upload-config glass-panel">
+          <h3 style={{ marginBottom: '16px' }}>Form Template</h3>
+          <div className="form-type-list">
+            {FORM_TYPES.map((ft) => (
+              <label 
+                key={ft.value} 
+                className={`form-type-option ${formType === ft.value ? 'selected' : ''}`}
+              >
+                <input 
+                  type="radio" 
+                  name="formType" 
+                  value={ft.value} 
+                  checked={formType === ft.value}
+                  onChange={() => setFormType(ft.value)}
+                  className="visually-hidden"
+                />
+                <div className="form-type-radio" />
+                <div>
+                  <span className="form-type-name">{ft.label}</span>
+                  <span className="form-type-lang">{ft.lang}</span>
+                </div>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Right: Upload Area */}
+        <div className="upload-area glass-panel">
+          {result ? (
+            <div className="result-container animate-fade-in">
+              <div className="result-header">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div className="result-icon-success">
+                    <CheckCircle size={20} />
+                  </div>
+                  <div>
+                    <h3 style={{ margin: 0 }}>Extraction Complete</h3>
+                    <p className="text-muted text-xs" style={{ margin: 0 }}>{file?.name}</p>
+                  </div>
+                </div>
+                <button onClick={resetForm} className="btn-ghost">
+                  <X size={15} /> New Upload
+                </button>
+              </div>
+              <div className="result-body">
+                <pre className="result-json">{JSON.stringify(result, null, 2)}</pre>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div 
+                className={`drop-zone ${dragActive ? 'drag-active' : ''} ${file ? 'has-file' : ''}`}
+                onDragEnter={(e) => { e.preventDefault(); setDragActive(true); }}
+                onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
+                onDragLeave={(e) => { e.preventDefault(); setDragActive(false); }}
+                onDrop={handleDrop}
+              >
+                <input
+                  type="file"
+                  id="fileInput"
+                  accept="image/*"
+                  onChange={(e) => setFile(e.target.files?.[0] || null)}
+                  style={{ display: 'none' }}
+                />
+
+                {file ? (
+                  <div className="file-preview animate-scale-in">
+                    <div className="file-preview-icon">
+                      <FileText size={28} />
+                    </div>
+                    <div className="file-preview-info">
+                      <span className="file-preview-name">{file.name}</span>
+                      <span className="file-preview-size">{(file.size / 1024).toFixed(1)} KB</span>
+                    </div>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setFile(null); }} 
+                      className="btn-ghost"
+                      style={{ color: 'var(--conf-low)' }}
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                ) : (
+                  <label htmlFor="fileInput" className="drop-zone-content">
+                    <div className="drop-zone-icon">
+                      <Upload size={28} />
+                    </div>
+                    <h4 style={{ margin: '12px 0 4px' }}>
+                      {dragActive ? 'Drop your file here' : 'Drag & drop your form image'}
+                    </h4>
+                    <p className="text-muted text-xs">JPG, PNG up to 10MB</p>
+                  </label>
+                )}
+              </div>
+
+              {error && (
+                <div className="upload-error animate-fade-in">
+                  <AlertCircle size={15} />
+                  {error}
+                </div>
+              )}
+
+              <button 
+                onClick={handleSubmit} 
+                className="btn-primary"
+                disabled={!file || loading}
+                style={{ width: '100%', justifyContent: 'center', marginTop: '16px', padding: '12px' }}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 size={16} className="icon-spin" style={{ animation: 'spin 1s linear infinite' }} /> 
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <ChevronRight size={16} />
+                    Start Extraction
+                  </>
+                )}
+              </button>
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
