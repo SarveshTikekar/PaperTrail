@@ -1,0 +1,9 @@
+ERROR:benchmark:Sample not found: media/forms/originals/sample249A.jpeg
+ERROR:benchmark:Sample not found: media/forms/originals/form49A.jpeg
+ERROR:benchmark:Sample not found: media/forms/originals/form_sample_3.jpeg
+
+≡ƒÜÇ Starting PaperTrail V3 Benchmark
+========================================
+
+========================================
+Benchmark Complete.

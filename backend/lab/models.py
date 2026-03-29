@@ -21,7 +21,7 @@ class ExtractionMethod(models.Model):
 
 
 class BaseForm(models.Model):
-    original_image = models.ImageField(upload_to='forms/originals/')
+    original_image = models.FileField(upload_to='forms/originals/')
     processed_image = models.ImageField(upload_to='forms/processed/', null=True, blank=True)
     extraction_method = models.CharField(max_length=50, blank=True)
     status = models.CharField(

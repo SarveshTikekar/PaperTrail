@@ -241,7 +241,7 @@ export default function UploadPage() {
                 <input
                   type="file"
                   id="fileInput"
-                  accept="image/*"
+                  accept="image/*,application/pdf"
                   onChange={(e) => setFile(e.target.files?.[0] || null)}
                   style={{ display: 'none' }}
                 />
@@ -271,7 +271,7 @@ export default function UploadPage() {
                     <h4 style={{ margin: '12px 0 4px' }}>
                       {dragActive ? 'Drop your file here' : 'Drag & drop your form image'}
                     </h4>
-                    <p className="text-muted text-xs">JPG, PNG up to 10MB</p>
+                    <p className="text-muted text-xs">JPG, PNG, PDF up to 10MB</p>
                   </label>
                 )}
               </div>

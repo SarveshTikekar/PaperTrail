@@ -25,6 +25,6 @@ class FormUploadSerializer(serializers.Serializer):
         ('voter_6', 'Voter ID Form 6'),
     ]
     
-    image = serializers.ImageField()
+    image = serializers.FileField()
     form_type = serializers.ChoiceField(choices=FORM_TYPES)
     extraction_method = serializers.CharField(required=False, allow_blank=True)

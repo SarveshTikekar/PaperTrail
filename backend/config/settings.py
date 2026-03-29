@@ -88,6 +88,9 @@ DATABASES = {
         # journal files. Point the database to a temp folder we can freely
         # read/write/delete in.
         'NAME': Path(tempfile.gettempdir()) / 'colohacks_db.sqlite3',
+        'OPTIONS': {
+            'timeout': 20,
+        }
     }
 }
 
@@ -154,7 +157,13 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '')
 OPENAI_EXTRACTION_MODEL = os.getenv('OPENAI_EXTRACTION_MODEL', 'gpt-4.1-mini')
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
 GEMINI_EXTRACTION_MODEL = os.getenv('GEMINI_EXTRACTION_MODEL', 'gemini-2.5-flash')
-OLLAMA_BASE_URL = os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')
-OLLAMA_EXTRACTION_MODEL = os.getenv('OLLAMA_EXTRACTION_MODEL', 'glm-ocr:latest')
+OLLAMA_BASE_URL = os.getenv('OLLAMA_BASE_URL', 'http://127.0.0.1:11434')
+OLLAMA_EXTRACTION_MODEL = os.getenv('OLLAMA_EXTRACTION_MODEL', 'llava-llama3')
 OLLAMA_MINICPM_MODEL = os.getenv('OLLAMA_MINICPM_MODEL', 'openbmb/minicpm-v4.5:8b')
+OLLAMA_MOONDREAM_MODEL = os.getenv('OLLAMA_MOONDREAM_MODEL', 'moondream:latest')
 OLLAMA_REQUEST_TIMEOUT = int(os.getenv('OLLAMA_REQUEST_TIMEOUT', '420'))
+HF_API_KEY = os.getenv('HF_API_KEY', '')
+FEATHERLESS_API_KEY = os.getenv('FEATHERLESS_API_KEY', '')
+FEATHERLESS_EXTRACTION_MODEL = os.getenv('FEATHERLESS_EXTRACTION_MODEL', 'mistralai/Mistral-7B-Instruct-v0.2')
+FEATHERLESS_MAX_PROMPT_CHARS = int(os.getenv('FEATHERLESS_MAX_PROMPT_CHARS', '3000'))
+FEATHERLESS_MAX_COMPLETION_TOKENS = int(os.getenv('FEATHERLESS_MAX_COMPLETION_TOKENS', '256'))

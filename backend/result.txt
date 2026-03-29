@@ -1,0 +1,246 @@
+INFO:__main__:Initializing EasyOCR Reader...
+INFO:__main__:Γ£à PaperTrailProtectV3 Service Ready
+INFO:__main__:Processing document...
+WARNING:__main__:Mistral extraction failed or returned empty.
+INFO:__main__:Legacy HF URL 410 (Gone) - falling back to Router...
+INFO:__main__:InternVL extraction successful.
+[DEBUG] OCR BLOCKS TEXT: Text: Form No. αÑ¬αÑ»A | Box: (465, 79, 579, 99) | Conf: 0.8362497661932955
+Text: Appllcalon for Allolmont ol Pormanont Account Numbor | Box: (321, 101, 695, 121) | Conf: 0.6233640433820614
+Text: On tha c...
+[DEBUG] MISTRAL RAW: {
+"surname": "SAIRNE",
+"father_name": "N/A",
+"middle_name": "N/A",
+"first_name": "N/A",
+"dob": {
+"day": "2",
+ "month": "0",
+ "year": "0"
+},
+"pan_number": "N/A",
+"gender": "N/A",
+"address": {
+ "street": "N/A",
+ "area": "N/A",
+ "locally": "N/A",
+ "town": "N/A",
+ "state": "N/A",
+ "pincode": "N/A"
+}
+}
+[DEBUG] INTERNVL RAW: ```json
+{
+    "Form No.": "αÑ¬αÑ»A",
+    "Application for Allocation of Permanent Account Number": "Application for Allolmont ol Pormanont Account Numbor",
+    "On the case of Indian Citizens/Indian Companies Entillos Incorporatod In India": "On tha case ol Indlan Cltlzansllndian Companles Entillos Incorporatod In Indial",
+    "Only": "Only",
+    "Or": "Oply",
+    "Individuals": "Indivduals",
+    "inoluduals": "inoluduals",
+    "Unincorporated entities formed In India": "Unincorporatod entitles formed In Indlal",
+    "To all recent": "Io alfiz recenl",
+    "To all recent": "Io ali recenl",
+    "Rule 11": "SαÑªαÑª Rulo αÑºαÑº",
+    "Photograph": "pholograph",
+    "Photograph": "pholograph",
+    "To avoid maliza (of Pleauro lollaa Iha accompearina Inslruchons and aramplea belore Iliina Up Ine lorm": "To avold mialzha (ol Plearo lollaa Iha accompearina Inslruchons and aramplea belore Iliina Up Ine lorm",
+    "αñ¬n 4": "αñ¬n 4",
+    "25 cm": "αÑ¿5 cm)",
+    "25 cm": "αÑ¿S cm)",
+    "Assessing officer (AO code)": "Assesslng olflcer (AO codol",
+    "Area code": "Area codo",
+    "AO type": "AO typo",
+    "Range code": "Rango codo",
+    "AO No": "AO No",
+    "Slan": "Slan",
+    "Len mumo IPraBlon": "Len mumo IPraBlon",
+    "DCIDEI Uhl": "DCIDEI Uhl",
+    "pholo": "pholo",
+    "Sir": "Sir",
+    "I hereby request that": "INe hereby requesl Uhal",
+    "permanent account number be allocated to me": "permanenl accounl number be allolled lo melus",
+    "We give below necessary particulars": "WNe give below necessary particulars",
+    "Signaturc / Lc 7 Tnuma Imcra Tsion": "Sianalurc / Lc 7 Tnuma Imcra Tsion",
+    "Full Name (Full expanded name to be mentioned as appearing in proof of identity/date of birth/address documents: Initials are not permitted)": "Full Name (Full expanded name lo be mentioned as appearing in proof of Iidenlityldate of birthladdress documents: Initials are not permitted)",
+    "Please select one": "Please seledl lille",
+    "as applicable": "as applicable",
+    "Shri": "Shri",
+    "Sml": "Sml",
+    "Kumari": "Kumari",
+    "Mls": "Mlls",
+    "Last Name": "Lasl Name",
+    "Sumame": "Sumame",
+    "First Name": "Firsl Name",
+    "SAIRNE": "SAIRNE",
+    "Middle Name": "Middle Name",
+    "LTLK A": "LTLK A",
+    "Abbreviations of the above name": "Abbreviations oi Uhe above name",
+    "as you would like it to be printed on the PAN": "as you would liko It to bo prlnled on the PAN",
+    "Have you ever been known by any other name?": "Have ever been known by any olher name?",
+    "Please select one": "Please seled Uue",
+    "as applicable": "as applicable",
+    "Shri": "Shri",
+    "Sml": "Sml",
+    "Kumari": "Kumari",
+    "Mls": "Mls",
+    "Last Name": "Lasl Name",
+    "Sumame": "Sumame",
+    "First Name": "Firsl Name",
+    "Gender (for individual applicants only)": "Gender (or Individual applicanls only)",
+    "Male": "Uhale",
+    "Female": "Femalo",
+    "Transgender": "Transgender",
+    "Please tick as applicable": "Iplease tick as applicable)",
+    "Date of Birth/Incorporation Agreement/Partnership or Trust Deed/Formation of Body of Individuals or Association of Persons": "Date of Blrthlncorporalion AgreemenuParinershlp or Trust Deedl Formation of Body of Individuals or Assoclation ol Persons",
+    "Day": "Day",
+    "Month": "Ihoniu",
+    "Year": "Year",
+    "2 0": "αÑ¿ αÑª",
+    "Details of Parents (applicable only for individual applicants)": "Delails ol Parenls (appilcable only for individual applicants",
+    "Whether mother is": "Whewer molher Is",
+    "single parent and you wish to apply for PAN by furnishing the name of your mother only": "single parent and you wish lo apply lor PAN by furnishing Ihe name of Jour molher only7",
+    "Yes": "Yes",
+    "No (please select as applicable)": "JINo (please Ick as applicable)",
+    "If yes please fill in mother's name in the appropriate space provided below": "Il yes please fill in molher 5 name in Ihe appropriale space provide below",
+    "Father's Name (Mandatory except where mother is a single parent and PAN is applied by furnishing the name of mother only)": "Father s Name Mandatory except Where mother Is a slnglo parent and PAN Is applled by furnishing the name of mother onlyl",
+    "Last Name / Sumame": "Lasl Name / Sumame",
+    "EIK": "EIK",
+    "R": "R",
+    "Name": "Nlame",
+    "TKAS": "TKAS",
+    "Old Name": "Olldole Ilame",
+    "ILANIKIALR": "-ILANIKIALR",
+    "Mother's Name (Optional except where mother is a single parent and PAN is applied by furnishing the name of mother only)": "Molhor 3 Name Jopllonal oxcopt whoro mothor Is a αÑ⌐lnguo paront and PAW Is applied by lurnishing Ihe name ol mother only )",
+    "Name": "name",
+    "Please select one": "Ploase lick as applicable)",
+    "On case no option is provided then PAN card will be Issued with father's name": "On cas8 no opllon is provided Ihen PAN card WIl be Issued Wllh lalher $",
+    "by furnishing name of the mother only)": "by lurnishing name ol Ihe molhier onlyl",
+    "name except where mother is a single parent and": "name excepl where molher Is a single parent and",
+    "you wish to apply for PAN": "you Aish Io apply for PAN",
+    "Address": "AddrosB",
+    "Road/Donco Address": "Roaldonco AddrosJ",
+    "Flat/Room": "Flal / Roomn",
+    "Door/Block No": "Door / Block No",
+    "Name of Premises/Building": "Name ol Premises / Building",
+    "Road": "Road",
+    "Lane/Posi Office": "Lane Posi Olfico",
+    "Area": "Area",
+    "Locally/Taluk/Sub Division": "Locally / Talukal Sub Division",
+    "Town/City/Dislricl": "Town / Clly / Dislricl",
+    "State": "Slate",
+    "Territory": "Tenrilory",
+    "M^": "M^",
+    "Pincode/Zip code": "Pincode / Zip code",
+    "ARASTR^": "ARASTR^",
+    "Name": "Name",
+    "4hb[6": "4hb[6",
+    "": " ",
+    "card": "card",
+    "you": "you",
+    "Yes": "Yes",
+    "First": "Firzl",
+    "I Village": "I Village",
+    "Street": "Streel",
+    "Union": "Union",
+    "Country": "Counlny"
+}
+```
+
+≡ƒôè Extracted Data:
+Pandas not installed. Printing fields directly:
+- Form No.: αÑ¬αÑ»A (0.55)
+- Application for Allocation of Permanent Account Number: Application for Allolmont ol Pormanont Account Numbor (0.5)
+- On the case of Indian Citizens/Indian Companies Entillos Incorporatod In India: On tha case ol Indlan Cltlzansllndian Companles Entillos Incorporatod In Indial (0.5)
+- Only: Only (0.5)
+- Or: Oply (0.5)
+- Individuals: Indivduals (0.5)
+- inoluduals: inoluduals (0.5)
+- Unincorporated entities formed In India: Unincorporatod entitles formed In Indlal (0.5)
+- To all recent: Io ali recenl (0.5)
+- Rule 11: SαÑªαÑª Rulo αÑºαÑº (0.55)
+- Photograph: pholograph (0.5)
+- To avoid maliza (of Pleauro lollaa Iha accompearina Inslruchons and aramplea belore Iliina Up Ine lorm: To avold mialzha (ol Plearo lollaa Iha accompearina Inslruchons and aramplea belore Iliina Up Ine lorm (0.5)
+- αñ¬n 4: αñ¬n 4 (0.55)
+- 25 cm: αÑ¿S cm) (0.55)
+- Assessing officer (AO code): Assesslng olflcer (AO codol (0.5)
+- Area code: Area codo (0.5)
+- AO type: AO typo (0.5)
+- Range code: Rango codo (0.5)
+- AO No: AO No (0.5)
+- Slan: Slan (0.5)
+- Len mumo IPraBlon: Len mumo IPraBlon (0.5)
+- DCIDEI Uhl: DCIDEI Uhl (0.5)
+- pholo: pholo (0.5)
+- Sir: Sir (0.5)
+- I hereby request that: INe hereby requesl Uhal (0.5)
+- permanent account number be allocated to me: permanenl accounl number be allolled lo melus (0.5)
+- We give below necessary particulars: WNe give below necessary particulars (0.5)
+- Signaturc / Lc 7 Tnuma Imcra Tsion: Sianalurc / Lc 7 Tnuma Imcra Tsion (0.55)
+- Full Name (Full expanded name to be mentioned as appearing in proof of identity/date of birth/address documents: Initials are not permitted): Full Name (Full expanded name lo be mentioned as appearing in proof of Iidenlityldate of birthladdress documents: Initials are not permitted) (0.5)
+- Please select one: Ploase lick as applicable) (0.5)
+- as applicable: as applicable (0.5)
+- Shri: Shri (0.5)
+- Sml: Sml (0.5)
+- Kumari: Kumari (0.5)
+- Mls: Mls (0.5)
+- Last Name: Lasl Name (0.5)
+- Sumame: Sumame (0.5)
+- First Name: Firsl Name (0.5)
+- SAIRNE: SAIRNE (0.5)
+- Middle Name: Middle Name (0.5)
+- LTLK A: LTLK A (0.5)
+- Abbreviations of the above name: Abbreviations oi Uhe above name (0.5)
+- as you would like it to be printed on the PAN: as you would liko It to bo prlnled on the PAN (0.5)
+- Have you ever been known by any other name?: Have ever been known by any olher name? (0.5)
+- Gender (for individual applicants only): Gender (or Individual applicanls only) (0.5)
+- Male: Uhale (0.5)
+- Female: Femalo (0.5)
+- Transgender: Transgender (0.5)
+- Please tick as applicable: Iplease tick as applicable) (0.5)
+- Date of Birth/Incorporation Agreement/Partnership or Trust Deed/Formation of Body of Individuals or Association of Persons: Date of Blrthlncorporalion AgreemenuParinershlp or Trust Deedl Formation of Body of Individuals or Assoclation ol Persons (0.5)
+- Day: Day (0.5)
+- Month: Ihoniu (0.5)
+- Year: Year (0.5)
+- 2 0: αÑ¿ αÑª (0.55)
+- Details of Parents (applicable only for individual applicants): Delails ol Parenls (appilcable only for individual applicants (0.5)
+- Whether mother is: Whewer molher Is (0.5)
+- single parent and you wish to apply for PAN by furnishing the name of your mother only: single parent and you wish lo apply lor PAN by furnishing Ihe name of Jour molher only7 (0.55)
+- Yes: Yes (0.5)
+- No (please select as applicable): JINo (please Ick as applicable) (0.5)
+- If yes please fill in mother's name in the appropriate space provided below: Il yes please fill in molher 5 name in Ihe appropriale space provide below (0.55)
+- Father's Name (Mandatory except where mother is a single parent and PAN is applied by furnishing the name of mother only): Father s Name Mandatory except Where mother Is a slnglo parent and PAN Is applled by furnishing the name of mother onlyl (0.5)
+- Last Name / Sumame: Lasl Name / Sumame (0.5)
+- EIK: EIK (0.5)
+- R: R (0.5)
+- Name: Name (0.5)
+- TKAS: TKAS (0.5)
+- Old Name: Olldole Ilame (0.5)
+- ILANIKIALR: -ILANIKIALR (0.5)
+- Mother's Name (Optional except where mother is a single parent and PAN is applied by furnishing the name of mother only): Molhor 3 Name Jopllonal oxcopt whoro mothor Is a αÑ⌐lnguo paront and PAW Is applied by lurnishing Ihe name ol mother only ) (0.55)
+- On case no option is provided then PAN card will be Issued with father's name: On cas8 no opllon is provided Ihen PAN card WIl be Issued Wllh lalher $ (0.55)
+- by furnishing name of the mother only): by lurnishing name ol Ihe molhier onlyl (0.5)
+- name except where mother is a single parent and: name excepl where molher Is a single parent and (0.5)
+- you wish to apply for PAN: you Aish Io apply for PAN (0.5)
+- Address: AddrosB (0.5)
+- Road/Donco Address: Roaldonco AddrosJ (0.5)
+- Flat/Room: Flal / Roomn (0.5)
+- Door/Block No: Door / Block No (0.5)
+- Name of Premises/Building: Name ol Premises / Building (0.5)
+- Road: Road (0.5)
+- Lane/Posi Office: Lane Posi Olfico (0.5)
+- Area: Area (0.5)
+- Locally/Taluk/Sub Division: Locally / Talukal Sub Division (0.5)
+- Town/City/Dislricl: Town / Clly / Dislricl (0.5)
+- State: Slate (0.5)
+- Territory: Tenrilory (0.5)
+- M^: M^ (0.5)
+- Pincode/Zip code: Pincode / Zip code (0.5)
+- ARASTR^: ARASTR^ (0.5)
+- 4hb[6: 4hb[6 (0.55)
+- card: card (0.5)
+- you: you (0.5)
+- First: Firzl (0.5)
+- I Village: I Village (0.5)
+- Street: Streel (0.5)
+- Union: Union (0.5)
+- Country: Counlny (0.5)

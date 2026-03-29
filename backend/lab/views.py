@@ -16,6 +16,16 @@ from rest_framework.views import APIView
 from .models import ExtractionMethod, PANForm49A, VoterIDForm6
 from .serializers import ExtractionMethodSerializer, FormUploadSerializer
 from .seeds import seed_extraction_methods
+from .papertrail_protectv3 import PaperTrailProtectV3
+
+# Initialize the PaperTrailProtectV3 service as a singleton
+_PROTECTOR_V3 = None
+
+def get_protector_v3():
+    global _PROTECTOR_V3
+    if _PROTECTOR_V3 is None:
+        _PROTECTOR_V3 = PaperTrailProtectV3()
+    return _PROTECTOR_V3
 
 
 PAN_FIELD_CONFIG = [
@@ -520,8 +530,10 @@ def encode_image_for_llm(image_path, max_size=(1600, 1600), jpeg_quality=80, for
         else:
             prepared.thumbnail(max_size)
         buffer = io.BytesIO()
-        prepared.save(buffer, format="JPEG", quality=jpeg_quality, optimize=True)
-        return base64.b64encode(buffer.getvalue()).decode("utf-8")
+        prepared.save(buffer, format="JPEG", quality=85, optimize=True)
+        encoded = base64.b64encode(buffer.getvalue()).decode("utf-8")
+        print(f"[DEBUG] ENCODE: {image_path} | Size: {prepared.size} | B64 Length: {len(encoded)}")
+        return encoded
 
 
 def build_confidence_lookup(ocr_data):
@@ -1237,8 +1249,9 @@ def extract_with_gemini_vision(image_path, field_config, form_type):
 
 
 def extract_with_ollama_model(image_path, field_config, form_type, model_name):
-    # glm-ocr (GLM-4V) requires exactly 448x448 to satisfy GGML patch-grid assertion.
-    encoded_image = encode_image_for_llm(image_path, force_size=(448, 448), jpeg_quality=85)
+    # Only glm-ocr (GLM-4V) requires exactly 448x448 to satisfy GGML patch-grid assertion.
+    force_size = (448, 448) if "glm-ocr" in model_name.lower() else None
+    encoded_image = encode_image_for_llm(image_path, force_size=force_size, jpeg_quality=70)
 
     field_names = [field_name for field_name, _ in field_config]
     field_labels = {field_name: label for field_name, label in field_config}
@@ -1306,39 +1319,18 @@ def extract_with_ollama_model(image_path, field_config, form_type, model_name):
 
     payload = {
         "model": model_name,
-        "messages": [
-            {
-                "role": "user",
-                "content": prompt,
-                "images": [encoded_image],
-            }
-        ],
+        "prompt": prompt,
+        "images": [encoded_image],
         "stream": False,
         "options": {
-            "temperature": 0,
-            "num_ctx": 2048,
+            "temperature": 0.1,
+            "num_ctx": 4096,
         },
-        "format": {
-            "type": "object",
-            "properties": {
-                "fields": {
-                    "type": "object",
-                    "properties": {
-                        field_name: {"type": "boolean"} if field_name in checkbox_fields else {"type": "string"}
-                        for field_name in field_names
-                    },
-                },
-                "notes": {
-                    "type": "array",
-                    "items": {"type": "string"},
-                },
-            },
-            "required": ["fields"],
-        },
+        "format": "json",
     }
 
     req = request.Request(
-        f"{settings.OLLAMA_BASE_URL}/api/chat",
+        f"{settings.OLLAMA_BASE_URL}/api/generate",
         data=json.dumps(payload).encode("utf-8"),
         headers={"Content-Type": "application/json"},
         method="POST",
@@ -1347,12 +1339,17 @@ def extract_with_ollama_model(image_path, field_config, form_type, model_name):
     try:
         with request.urlopen(req, timeout=settings.OLLAMA_REQUEST_TIMEOUT) as response:
             raw_response = json.loads(response.read().decode("utf-8"))
+            print(f"[DEBUG] OLLAMA RAW: {json.dumps(raw_response, indent=2)}")
     except error.HTTPError as exc:
-        return "", [f"Ollama Vision request failed: {exc.read().decode('utf-8', errors='ignore')}"], {}, {}
+        err_msg = exc.read().decode('utf-8', errors='ignore')
+        print(f"[DEBUG] OLLAMA HTTP ERROR: {err_msg}")
+        return "", [f"Ollama Vision request failed: {err_msg}"], {}, {}
     except Exception as exc:
+        print(f"[DEBUG] OLLAMA CONN ERROR: {str(exc)}")
         return "", [f"Ollama Vision request failed: {str(exc)}"], {}, {}
 
-    output_text = raw_response.get("message", {}).get("content", "").strip()
+    output_text = raw_response.get("response", "").strip()
+    print(f"[DEBUG] OLLAMA CONTENT: {output_text}")
     try:
         parsed_output = json.loads(output_text or "{}")
     except json.JSONDecodeError:
@@ -1382,8 +1379,9 @@ def extract_with_ollama_model(image_path, field_config, form_type, model_name):
 
 
 def extract_text_with_ollama_model(image_path, form_type, model_name):
-    # glm-ocr (GLM-4V) requires exactly 448x448 to satisfy GGML patch-grid assertion.
-    encoded_image = encode_image_for_llm(image_path, force_size=(448, 448), jpeg_quality=85)
+    # Only glm-ocr (GLM-4V) requires exactly 448x448 to satisfy GGML patch-grid assertion.
+    force_size = (448, 448) if "glm-ocr" in model_name.lower() else None
+    encoded_image = encode_image_for_llm(image_path, force_size=force_size, jpeg_quality=70)
 
     guide = FORM_EXTRACTION_GUIDES.get(form_type, {})
     prompt_lines = [
@@ -1397,22 +1395,17 @@ def extract_text_with_ollama_model(image_path, form_type, model_name):
     ]
     payload = {
         "model": model_name,
-        "messages": [
-            {
-                "role": "user",
-                "content": "\n".join(prompt_lines),
-                "images": [encoded_image],
-            }
-        ],
+        "prompt": "\n".join(prompt_lines),
+        "images": [encoded_image],
         "stream": False,
         "options": {
-            "temperature": 0,
-            "num_ctx": 2048,
+            "temperature": 0.1,
+            "num_ctx": 4096,
         },
     }
 
     req = request.Request(
-        f"{settings.OLLAMA_BASE_URL}/api/chat",
+        f"{settings.OLLAMA_BASE_URL}/api/generate",
         data=json.dumps(payload).encode("utf-8"),
         headers={"Content-Type": "application/json"},
         method="POST",
@@ -1421,18 +1414,24 @@ def extract_text_with_ollama_model(image_path, form_type, model_name):
     try:
         with request.urlopen(req, timeout=settings.OLLAMA_REQUEST_TIMEOUT) as response:
             raw_response = json.loads(response.read().decode("utf-8"))
+            print(f"[DEBUG] OLLAMA RAW (TEXT): {json.dumps(raw_response, indent=2)}")
     except error.HTTPError as exc:
-        return "", [f"Ollama OCR request failed: {exc.read().decode('utf-8', errors='ignore')}"]
+        err_msg = exc.read().decode('utf-8', errors='ignore')
+        print(f"[DEBUG] OLLAMA HTTP ERROR (TEXT): {err_msg}")
+        return "", [f"Ollama OCR request failed: {err_msg}"]
     except Exception as exc:
+        print(f"[DEBUG] OLLAMA CONN ERROR (TEXT): {str(exc)}")
         return "", [f"Ollama OCR request failed: {str(exc)}"]
 
-    output_text = raw_response.get("message", {}).get("content", "").strip()
+    output_text = raw_response.get("response", "").strip()
+    print(f"[DEBUG] OLLAMA CONTENT (TEXT): {output_text}")
     return output_text, []
 
 
 def extract_with_ollama_vision(image_path, field_config, form_type):
-    return extract_text_with_ollama_model(
+    return extract_with_ollama_model(
         image_path,
+        field_config,
         form_type,
         settings.OLLAMA_EXTRACTION_MODEL,
     )
@@ -1444,6 +1443,110 @@ def extract_with_minicpm_vision(image_path, field_config, form_type):
         form_type,
         settings.OLLAMA_MINICPM_MODEL,
     )
+
+
+def extract_with_moondream(image_path, field_config, form_type):
+    return extract_text_with_ollama_model(
+        image_path,
+        form_type,
+        settings.OLLAMA_MOONDREAM_MODEL,
+    )
+
+
+def normalize_extracted_fields(raw_fields_list, field_config, form_type):
+    """
+    Common helper to normalize a list of {'field_name': ..., 'value': ...}
+    into the format expected by the Django models.
+    """
+    raw_fields = {str(f.get("field_name", "")).lower(): f.get("value", "") for f in raw_fields_list}
+    
+    field_names = [field_name for field_name, _ in field_config]
+    guide = FORM_EXTRACTION_GUIDES.get(form_type, {})
+    checkbox_fields = set(guide.get("checkbox_fields", []))
+    
+    normalized_values = {}
+    for field_name in field_names:
+        value = raw_fields.get(field_name.lower(), "")
+        if field_name in checkbox_fields:
+            normalized_values[field_name] = normalize_bool(value)
+        elif value is None:
+            normalized_values[field_name] = ""
+        else:
+            normalized = str(value).strip()
+            if field_name in {"dob", "residence_since"}:
+                normalized = normalize_date_string(normalized)
+            normalized_values[field_name] = normalized
+    return normalized_values
+
+
+def extract_with_papertrail_v3(image_path, field_config, form_type):
+    """
+    Wrapper for the full PaperTrailProtectV3 ensemble.
+    """
+    protector = get_protector_v3()
+    result = protector.process_document(image_path, field_config=field_config)
+    
+    if not result.get("success"):
+        return "", [f"PaperTrail V3 error: {result.get('error')}"], {}, {}
+        
+    raw_text = protector.format_blocks_for_prompt(result.get("blocks", []))
+    normalized = normalize_extracted_fields(result.get("fields", []), field_config, form_type)
+    return raw_text, [], {}, normalized
+
+
+def extract_with_easy_ocr_standalone(image_path, field_config, form_type, parser):
+    """
+    Standalone wrapper for Pure EasyOCR.
+    """
+    protector = get_protector_v3()
+    # Using the service's reader directly
+    try:
+        from PIL import Image
+        img = Image.open(image_path)
+        blocks = protector.get_ocr_blocks(img)
+        raw_text = protector.format_blocks_for_prompt(blocks)
+        parsed_values = parser(raw_text)
+        return raw_text, ["Extracted using standalone EasyOCR."], {}, parsed_values
+    except Exception as e:
+        return "", [f"EasyOCR error: {str(e)}"], {}, {}
+
+
+def extract_with_mistral_standalone(image_path, field_config, form_type):
+    """
+    Standalone wrapper for Mistral (Featherless) over EasyOCR.
+    """
+    protector = get_protector_v3()
+    try:
+        from PIL import Image
+        img = Image.open(image_path)
+        blocks = protector.get_ocr_blocks(img)
+        blocks_text = protector.format_blocks_for_prompt(blocks)
+        
+        output = protector.mistral_extract(img, blocks_text, blocks=blocks)
+        fields = protector.safe_parse_llm_output(output)
+        normalized = normalize_extracted_fields(fields, field_config, form_type)
+        return blocks_text, ["Extracted using standalone Mistral (Featherless)."], {}, normalized
+    except Exception as e:
+        return "", [f"Mistral error: {str(e)}"], {}, {}
+
+
+def extract_with_internvl_standalone(image_path, field_config, form_type):
+    """
+    Standalone wrapper for InternVL (HF Router) over EasyOCR.
+    """
+    protector = get_protector_v3()
+    try:
+        from PIL import Image
+        img = Image.open(image_path)
+        blocks = protector.get_ocr_blocks(img)
+        blocks_text = protector.format_blocks_for_prompt(blocks)
+        
+        output = protector.internvl_extract(blocks_text)
+        fields = protector.safe_parse_llm_output(output)
+        normalized = normalize_extracted_fields(fields, field_config, form_type)
+        return blocks_text, ["Extracted using standalone InternVL (HF Router)."], {}, normalized
+    except Exception as e:
+        return "", [f"InternVL error: {str(e)}"], {}, {}
 
 
 def build_record_payload(instance, form_type, field_config):
@@ -1506,13 +1609,11 @@ def run_extraction_pipeline(image_path, form_type, extraction_method):
             form_type,
         )
     elif extraction_method.slug == "ollama_vision":
-        raw_text, notes = extract_with_ollama_vision(
+        raw_text, notes, confidence_lookup, parsed_values = extract_with_ollama_vision(
             image_path,
             field_config,
             form_type,
         )
-        confidence_lookup = local_confidence_lookup
-        parsed_values = parser(raw_text)
     elif extraction_method.slug == "minicpm_vision":
         raw_text, notes = extract_with_minicpm_vision(
             image_path,
@@ -1521,6 +1622,39 @@ def run_extraction_pipeline(image_path, form_type, extraction_method):
         )
         confidence_lookup = local_confidence_lookup
         parsed_values = parser(raw_text)
+    elif extraction_method.slug == "moondream":
+        raw_text, notes = extract_with_moondream(
+            image_path,
+            field_config,
+            form_type,
+        )
+        confidence_lookup = local_confidence_lookup
+        parsed_values = parser(raw_text)
+    elif extraction_method.slug == "papertrail_v3":
+        raw_text, notes, confidence_lookup, parsed_values = extract_with_papertrail_v3(
+            image_path,
+            field_config,
+            form_type,
+        )
+    elif extraction_method.slug == "easy_ocr_local":
+        raw_text, notes, confidence_lookup, parsed_values = extract_with_easy_ocr_standalone(
+            image_path,
+            field_config,
+            form_type,
+            parser
+        )
+    elif extraction_method.slug == "mistral_featherless":
+        raw_text, notes, confidence_lookup, parsed_values = extract_with_mistral_standalone(
+            image_path,
+            field_config,
+            form_type,
+        )
+    elif extraction_method.slug == "internvl_hf_router":
+        raw_text, notes, confidence_lookup, parsed_values = extract_with_internvl_standalone(
+            image_path,
+            field_config,
+            form_type,
+        )
     else:
         raw_text, notes, confidence_lookup, parsed_values = (
             local_raw_text,
@@ -1614,29 +1748,125 @@ class FormUploadView(APIView):
             )
 
         image_path = instance.original_image.path
-        extraction_result = run_extraction_pipeline(image_path, form_type, extraction_method)
-        raw_text = extraction_result["raw_text"]
-        notes = extraction_result["notes"]
-        confidence_lookup = extraction_result["confidence_lookup"]
-        parsed_values = extraction_result["parsed_values"]
-        field_config = extraction_result["field_config"]
-        debug_payload = extraction_result["debug_payload"]
 
-        changed_fields = apply_parsed_values(instance, parsed_values)
+        is_pdf = image_path.lower().endswith('.pdf')
+        temp_paths = []
+        import tempfile
+        import os
+        if is_pdf:
+            from pdf2image import convert_from_path
+            pages = convert_from_path(image_path)
+            for page in pages:
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as p_file:
+                    page.save(p_file.name, format="PNG")
+                    temp_paths.append(p_file.name)
+        else:
+            temp_paths.append(image_path)
 
-        review_fields = serialize_review_fields(instance, field_config, confidence_lookup)
+        pages_results = []
+        try:
+            for path in temp_paths:
+                extraction_result = run_extraction_pipeline(path, form_type, extraction_method)
+                
+                if form_type == "pan_49a" and len(pages_results) == 0:
+                    # Apply parsed values from the first page (or merge them) to the instance
+                    changed_fields = apply_parsed_values(instance, extraction_result["parsed_values"])
+                elif form_type != "pan_49a" and len(pages_results) == 0:
+                    changed_fields = apply_parsed_values(instance, extraction_result["parsed_values"])
+                
+                review_fields = serialize_review_fields(instance, extraction_result["field_config"], extraction_result["confidence_lookup"])
+                # Overwrite review fields to use the ones from this specific page 
+                # (since serialize_review_fields might use instance values, we re-parse using from_values for subsequent pages if needed)
+                # For simplicity in this demo, we'll store everything in confidence_data["pages"]
+
+                pages_results.append({
+                    "raw_text": extraction_result["raw_text"],
+                    "notes": extraction_result["notes"],
+                    "parsed_values": extraction_result["parsed_values"],
+                    "review_fields": review_fields,
+                    "method": extraction_method.slug,
+                    "debug": extraction_result["debug_payload"],
+                })
+        finally:
+            if is_pdf:
+                for path in temp_paths:
+                    if os.path.exists(path):
+                        try:
+                            os.unlink(path)
+                        except OSError:
+                            pass
+
         instance.confidence_data = {
-            "raw_text": raw_text,
-            "notes": notes,
-            "review_fields": review_fields,
+            # Backward compatibility (first page)
+            "raw_text": pages_results[0]["raw_text"] if pages_results else "",
+            "notes": pages_results[0]["notes"] if pages_results else [],
+            "review_fields": pages_results[0]["review_fields"] if pages_results else [],
             "method": extraction_method.slug,
-            "debug": debug_payload,
+            "debug": pages_results[0]["debug"] if pages_results else {},
+            # New multi-page support
+            "pages": pages_results,
         }
-        changed_fields.append("confidence_data")
-        changed_fields.append("extraction_method")
+        
+        if "changed_fields" not in locals():
+            changed_fields = []
+        changed_fields.extend(["confidence_data", "extraction_method"])
+        # Remove duplicates
+        changed_fields = list(set(changed_fields))
         instance.save(update_fields=changed_fields)
 
-        return Response(build_record_payload(instance, form_type, field_config), status=status.HTTP_201_CREATED)
+        payload = build_record_payload(instance, form_type, get_form_processing_context(form_type)["field_config"])
+        # Inject pages into payload
+        payload["pages"] = pages_results
+        return Response(payload, status=status.HTTP_201_CREATED)
+
+
+class ExtractionRecordListView(APIView):
+    """
+    List all uploaded forms (PAN and Voter ID) sorted by latest.
+    Used by the frontend to sync localStorage.
+    """
+    def get(self, request):
+        records = []
+        
+        pan_forms = PANForm49A.objects.all().order_by('-created_at')[:20]
+        for form in pan_forms:
+            records.append(build_record_payload(form, "pan_49a", PAN_FIELD_CONFIG))
+            
+        voter_forms = VoterIDForm6.objects.all().order_by('-created_at')[:20]
+        for form in voter_forms:
+            records.append(build_record_payload(form, "voter_6", VOTER_FIELD_CONFIG))
+            
+        # Sort combined list by created_at desc
+        records.sort(key=lambda x: x['created_at'], reverse=True)
+        return Response(records[:40])
+
+
+class ExtractionRecordDetailView(APIView):
+    """
+    Retrieve a single record by its composite ID (e.g., 'pan_49a-52').
+    """
+    def get(self, request, record_id):
+        try:
+            if '-' not in record_id:
+                return Response({"error": "Invalid record ID format."}, status=status.HTTP_400_BAD_REQUEST)
+                
+            form_type, pk = record_id.rsplit('-', 1)
+            
+            if form_type == "pan_49a":
+                instance = PANForm49A.objects.get(pk=pk)
+                record = build_record_payload(instance, form_type, PAN_FIELD_CONFIG)
+            elif form_type == "voter_6":
+                instance = VoterIDForm6.objects.get(pk=pk)
+                record = build_record_payload(instance, form_type, VOTER_FIELD_CONFIG)
+            else:
+                return Response({"error": "Unknown form type."}, status=status.HTTP_400_BAD_REQUEST)
+                
+            return Response(record)
+        except (PANForm49A.DoesNotExist, VoterIDForm6.DoesNotExist):
+            return Response({"error": "Record not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 class OCRTestView(APIView):
@@ -1657,37 +1887,68 @@ class OCRTestView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        suffix = os.path.splitext(image_file.name or "")[1] or ".png"
-        temp_path = None
+        suffix = os.path.splitext(image_file.name or "")[1].lower() or ".png"
+        temp_paths = []
         try:
+            # Save the uploaded file to a temporary location
             with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp_file:
                 for chunk in image_file.chunks():
                     temp_file.write(chunk)
-                temp_path = temp_file.name
+                upload_path = temp_file.name
 
-            extraction_result = run_extraction_pipeline(temp_path, form_type, extraction_method)
-            review_fields = serialize_review_fields_from_values(
-                extraction_result["parsed_values"],
-                extraction_result["field_config"],
-                extraction_result["confidence_lookup"],
-            )
-            return Response(
-                {
-                    "form_type": form_type,
-                    "extraction_method": extraction_method.slug,
+            # If PDF, convert to a list of image paths
+            if suffix == ".pdf":
+                from pdf2image import convert_from_path
+                pages = convert_from_path(upload_path)
+                for page in pages:
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as p_file:
+                        page.save(p_file.name, format="PNG")
+                        temp_paths.append(p_file.name)
+                # We can delete the original PDF now
+                os.unlink(upload_path)
+            else:
+                temp_paths.append(upload_path)
+
+            pages_results = []
+            
+            for path in temp_paths:
+                extraction_result = run_extraction_pipeline(path, form_type, extraction_method)
+                review_fields = serialize_review_fields_from_values(
+                    extraction_result["parsed_values"],
+                    extraction_result["field_config"],
+                    extraction_result["confidence_lookup"],
+                )
+                
+                pages_results.append({
                     "raw_text": extraction_result["raw_text"],
                     "notes": extraction_result["notes"],
                     "parsed_values": extraction_result["parsed_values"],
                     "review_fields": review_fields,
                     "debug": extraction_result["debug_payload"],
+                })
+
+            return Response(
+                {
+                    "form_type": form_type,
+                    "extraction_method": extraction_method.slug,
+                    # For backward compatibility, return first page results at top level
+                    "raw_text": pages_results[0]["raw_text"] if pages_results else "",
+                    "notes": pages_results[0]["notes"] if pages_results else [],
+                    "parsed_values": pages_results[0]["parsed_values"] if pages_results else {},
+                    "review_fields": pages_results[0]["review_fields"] if pages_results else [],
+                    "debug": pages_results[0]["debug"] if pages_results else {},
+                    # The full array for multi-page support
+                    "pages": pages_results,
                 }
             )
         finally:
-            if temp_path and os.path.exists(temp_path):
-                try:
-                    os.unlink(temp_path)
-                except OSError:
-                    pass
+            for path in temp_paths:
+                if os.path.exists(path):
+                    try:
+                        os.unlink(path)
+                    except OSError:
+                        pass
+
 
 
 class ExtractionMethodListView(APIView):

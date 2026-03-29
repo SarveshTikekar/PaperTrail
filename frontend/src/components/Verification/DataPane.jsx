@@ -8,13 +8,25 @@ export default function DataPane({ data, onFieldFocus, rawText, documentStatus, 
     setFields(data);
   }, [data]);
 
-  const getConfidenceIcon = (conf) => {
-    if (conf === 'high') return <CheckCircle size={16} color="var(--conf-high)" />;
-    if (conf === 'medium') return <AlertTriangle size={16} color="var(--conf-medium)" />;
-    return <HelpCircle size={16} color="var(--conf-low)" />;
+  const getConfidenceClass = (score) => {
+    const val = parseFloat(score || 0);
+    if (val >= 0.8) return 'conf-high';
+    if (val >= 0.5) return 'conf-medium';
+    return 'conf-low';
   };
 
-  const getConfidenceClass = (conf) => `conf-${conf}`;
+  const getConfidenceIcon = (score) => {
+    const val = parseFloat(score || 0);
+    if (val >= 0.8) return <CheckCircle size={14} color="var(--conf-high)" />;
+    if (val >= 0.5) return <AlertTriangle size={14} color="var(--conf-medium)" />;
+    return <HelpCircle size={14} color="var(--conf-low)" />;
+  };
+
+  const normalizeBool = (val) => {
+    if (typeof val === 'boolean') return val;
+    const str = String(val || '').toLowerCase().trim();
+    return ['true', 'yes', '1', 'checked'].includes(str);
+  };
 
   const handleChange = (fieldId, value) => {
     setFields((current) => current.map((field) => (field.id === fieldId ? { ...field, value } : field)));
@@ -59,37 +71,59 @@ export default function DataPane({ data, onFieldFocus, rawText, documentStatus, 
       <form onSubmit={(e) => e.preventDefault()}>
         <div className="stagger-children">
           {fields.length ? (
-            fields.map((field) => (
-              <div className="field-group" key={field.id}>
-                <label className="field-label">{field.label}</label>
-                <div className="editable-input-container">
-                  <input
-                    type="text"
-                    value={field.value}
-                    className={`editable-input ${getConfidenceClass(field.confidence)}`}
-                    onChange={(e) => handleChange(field.id, e.target.value)}
-                    onFocus={() => onFieldFocus(field.id)}
-                    onBlur={() => onFieldFocus(null)}
-                  />
-                  <div className="conf-icon-wrapper" title={`Confidence: ${field.confidence}`}>
-                    {getConfidenceIcon(field.confidence)}
+            fields.map((field) => {
+              const isBool = typeof field.value === 'boolean' || ['true', 'false'].includes(String(field.value).toLowerCase().trim());
+              
+              return (
+                <div className="field-group" key={field.id}>
+                  <label className="field-label">{field.label}</label>
+                  <div className="editable-input-container">
+                    {isBool ? (
+                      <label className={`checkbox-field ${getConfidenceClass(field.confidence)}`}>
+                        <input
+                          type="checkbox"
+                          checked={normalizeBool(field.value)}
+                          onChange={(e) => handleChange(field.id, e.target.checked)}
+                          onFocus={() => onFieldFocus(field.id)}
+                          onBlur={() => onFieldFocus(null)}
+                        />
+                        <span className="checkbox-text">{normalizeBool(field.value) ? 'Selected / Yes' : 'Not Selected / No'}</span>
+                        <div className="conf-dot" style={{ position: 'absolute', top: 10, right: 14 }}>
+                           {getConfidenceIcon(field.confidence)}
+                        </div>
+                      </label>
+                    ) : (
+                      <>
+                        <input
+                          type="text"
+                          value={field.value}
+                          className={`editable-input ${getConfidenceClass(field.confidence)}`}
+                          onChange={(e) => handleChange(field.id, e.target.value)}
+                          onFocus={() => onFieldFocus(field.id)}
+                          onBlur={() => onFieldFocus(null)}
+                        />
+                        <div className="conf-icon-wrapper" title={`Confidence: ${field.confidence}`}>
+                          {getConfidenceIcon(field.confidence)}
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  <div
+                    style={{
+                      fontSize: '0.72rem',
+                      marginTop: '5px',
+                      color: 'var(--text-tertiary)',
+                      display: 'flex',
+                      gap: '4px',
+                      alignItems: 'center',
+                    }}
+                  >
+                    OCR: <span className="mono">{field.originalOCR || '-'}</span>
                   </div>
                 </div>
-
-                <div
-                  style={{
-                    fontSize: '0.72rem',
-                    marginTop: '5px',
-                    color: 'var(--text-tertiary)',
-                    display: 'flex',
-                    gap: '4px',
-                    alignItems: 'center',
-                  }}
-                >
-                  OCR: <span className="mono">{field.originalOCR || '-'}</span>
-                </div>
-              </div>
-            ))
+              );
+            })
           ) : (
             <div
               style={{
